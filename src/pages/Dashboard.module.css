@@ -1,0 +1,269 @@
+.parent {
+    display: grid;
+    grid-template-columns: repeat(10, 10%);
+    grid-template-rows: repeat(10, 10%);
+    gap: 0;
+    height: 100vh;
+  }
+  
+  .logo {
+    grid-area: 1 / 1 / 3 / 3;
+    background-color: #ffffff00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .logo img {
+    max-width: 80%; /* Ensures the image fits within the div */
+    height: auto;    /* Maintains aspect ratio */
+  }
+  
+  .div2 {
+    grid-area: 3 / 1 / 11 / 3;
+    background-color: #ffffff00;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: width 0.5s ease;
+  }
+  
+  .visible {
+    width: 100%;
+  }
+  
+  .hidden {
+    width: 20;
+    overflow:hidden;
+  }
+  
+  .buttonContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .button1, .button2, .button3, .button4 {
+    margin: 10px 0;
+    padding: 10px 20px;
+    background-color: rgb(48, 34, 182);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    height: 35px;
+    width: 170px;
+    font-size: 1.5rem;
+    text-decoration: none;
+  }
+  
+  .button1:hover, .button2:hover, .button3:hover, .button4:hover {
+    background-color: #3c6421;
+  }
+  .buttonRow {
+    display: flex;
+    justify-content: center; /* Center the buttons */
+    width: 100%;
+    padding: 10px 0;
+  }
+  
+  .buttonProfile, .buttonLogout {
+    margin: 0 5px; /* Add a small margin for spacing */
+    padding: 0; /* Reset padding */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    height: 40px; /* Make it square */
+    width: 40px;  /* Make it square */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+  }
+  .buttonProfile{
+    background-color: rgb(48, 34, 182);
+  }
+
+  .buttonLogout{
+    background-color: #2d742d;
+  }
+  
+  .buttonProfile:hover, .buttonLogout:hover {
+    background-color: #A90016;
+  }
+  .content {
+    grid-area: 3 / 3 / 11 / 11;
+    background-color: #ffffff;
+    position: relative;
+    transition: width 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .fullWidth {
+    grid-area: 3 / 1 / 11 / 11;
+  }
+  
+  .contentWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .top {
+    flex: 1; /* Takes 50% of height */
+    display: flex; /* Enable column layout */
+  }
+  
+  .leftColumn {
+    flex: 3; /* Each column takes 50% of the top section */
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    padding: 20px; /* Optional padding */
+  }
+  
+.rectangle {
+  background-color: white; /* Background for each rectangle */
+  border-radius: 8px; /* Rounded corners */
+  padding: 15px; /* Padding for inner content */
+  margin-bottom: 15px; /* Space between rectangles */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); /* Shadow for rectangle */
+}
+
+label {
+  font-weight: bold; /* Bold label for emphasis */
+  display: block; /* Make label block-level */
+  margin-bottom: 8px; /* Space below the label */
+}
+
+select {
+  width: 100%; /* Full width for dropdown */
+  padding: 10px; /* Padding for better touch targets */
+  border: 1px solid #ccc; /* Border color */
+  border-radius: 4px; /* Rounded corners */
+  font-size: 16px; /* Font size for better readability */
+}
+
+h3 {
+  margin: 0 0 10px; /* Margin for heading */
+  font-size: 18px; /* Font size for headings */
+  color: #333; /* Darker text color */
+}
+
+p {
+  margin: 0; /* Remove default margin */
+  font-size: 16px; /* Font size for paragraph */
+  color: #555; /* Slightly lighter text color */
+}
+
+
+
+.rightColumn {
+    flex: 7; /* Takes a larger portion compared to the left column */
+    display: flex;
+    background-color: #2eda2286;
+    justify-content: center;
+    align-items: center;
+    padding:0px 10px;
+    border: red solid 1px;
+    width: 100%; /* Ensure full width */
+    height: 100%; /* Ensure full height */
+  }
+  
+  .chartContainer {
+    width: 100%;
+    height: 250px; /* Adjust height as necessary */
+    position: relative;
+  }
+  
+  
+  .contentBottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+.separateTable {
+    flex: 1; /* Allow each table to grow equally */
+    margin: 0 10px; /* Space between tables */
+    border: 2px solid #007bff; /* Border color for each separate table */
+    border-radius: 8px; /* Rounded corners */
+    overflow: hidden; /* Ensure rounded corners apply */
+}
+
+.separateTableHeader {
+    background-color: #007bff; /* Header background color */
+    color: white;
+    padding: 10px;
+    border-radius: 8px 8px 0 0; /* Rounded corners for the top */
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    border: 2px solid #ccc;
+    padding: 10px;
+    text-align: left;
+    background-color: #f9f9f9;
+}
+
+.table th {
+    background-color: #e2e2e2;
+}
+
+.table tr:hover {
+    background-color: #f1f1f1;
+}
+
+  
+  .toggleButton {
+    position: absolute;
+    left: 0px;
+    height: 60px; /* Make it square */
+    width: 30px;  /* Make it square */
+    top: 5%;
+    transform: translateY(-50%);
+    background-color: #2774da79;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem; /* Adjust as needed */
+    transition: toggle 1.5s ease-in;
+  }
+  
+  .toggleButton:hover {
+    background-color: #A90016;
+  }
+  
+  
+  .searchbar {
+    grid-area: 1 / 3 / 2 / 12;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .pagename {
+    grid-area: 2 / 3 / 2 / 12;
+    background-color: #ffffff;
+    font-size: 3rem;
+  }
+  

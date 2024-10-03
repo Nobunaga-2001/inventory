@@ -1,0 +1,510 @@
+import React, { useEffect, useState } from 'react';
+import styles from './Order.module.css';
+import image from '../images/logo.png';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBars, faClipboardList, faEllipsis, faIndustry, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { Link, useNavigate } from 'react-router-dom';
+import { auth, db } from '../firebase';
+import Modal from './Modal';
+import { ref, get, update } from 'firebase/database';
+
+const Order = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = ref(db, `users/${user.uid}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          setCurrentUser(snapshot.val());
+        }
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  const toggleCollapse = () => {
+    setIsCollapsed(prevState => !prevState);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const userId = auth.currentUser?.uid;
+      if (userId) {
+        const logoutTime = getManilaTime();
+        const userLogsRef = ref(db, `userLogs/${userId}`);
+        await update(userLogsRef, { logoutTime });
+      }
+      await auth.signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  const getManilaTime = () => {
+    const options = {
+      timeZone: 'Asia/Manila',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    };
+    const formatter = new Intl.DateTimeFormat('en-PH', options);
+    const [date, time] = formatter.format(new Date()).split(', ');
+    return `${date} ${time}`;
+  };
+
+  return (
+    <div className={styles.parent}>
+       <Link to="/dashboard" className={styles.logo}>
+      <img src={image} alt="Logo" />
+      </Link>
+      <div className={`${styles.div2} ${isCollapsed ? styles.hidden : styles.visible}`}>
+        <div className={styles.buttonContainer}>
+          <Link to="/inventory" className={styles.button1}><FontAwesomeIcon icon={faClipboardList} /> Inventory</Link>
+          <Link to="/order" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> Order</Link>
+          <Link to="/supplier" className={styles.button3}><FontAwesomeIcon icon={faIndustry} /> Supplier</Link>
+          <Link to="/misc" className={styles.button4}><FontAwesomeIcon icon={faEllipsis} /> Misc</Link>
+        </div>
+        <div className={styles.buttonRow}>
+          <div className={styles.buttonProfile} onClick={() => setShowModal(true)}>
+            <FontAwesomeIcon icon={faUser} />
+          </div>
+          <div className={styles.buttonLogout} onClick={handleLogout}>
+            <FontAwesomeIcon icon={faSignOutAlt} />
+          </div>
+        </div>
+      </div>
+      <div className={`${styles.content} ${isCollapsed ? styles.fullWidth : ''}`}>
+  <button className={styles.toggleButton} onClick={toggleCollapse}>
+    <FontAwesomeIcon icon={faBars} />
+  </button>
+         <div className={styles.contentTop}>
+          <div className={styles.contentTop}>
+            <Link to="/order" className={styles.navButton1}>Order</Link>
+            <Link to="/orderlist" className={styles.navButton2}>Order List</Link>
+          </div>
+        </div>
+        <div className={styles.contentBottom}>Bottom Content (90%)</div>
+        </div>
+      <div className={styles.searchbar}>Search Bar</div>
+      <div className={styles.pagename}>| Order</div>
+
+      {showModal && <Modal onClose={() => setShowModal(false)} />}
+
+      {currentUser && (
+        <div className={styles.userInfo}>
+          <p>Welcome, {currentUser.firstName}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Order;
+
+
+import React, { useEffect, useState } from 'react';
+import styles from './Order.module.css';
+import image from '../images/logo.png';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBars, faClipboardList, faEllipsis, faIndustry, faShoppingCart, faSave  } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { Link, useNavigate } from 'react-router-dom';
+import { auth, db } from '../firebase';
+import Modal from './Modal';
+import { ref, get, update, onValue, push } from 'firebase/database';
+
+const Order = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [orderDetails, setOrderDetails] = useState({ customer: '', location: '', productName: '', orderQuantity: 1 });
+  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = ref(db, `users/${user.uid}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          setCurrentUser(snapshot.val());
+        }
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    const productRef = ref(db, 'products');
+    onValue(productRef, (snapshot) => {
+      const data = snapshot.val();
+      const productList = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+      setProducts(productList);
+    });
+  }, []);
+
+  const toggleCollapse = () => {
+    setIsCollapsed(prevState => !prevState);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setOrderDetails(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { productName, orderQuantity } = orderDetails;
+
+    const product = products.find(p => p.variations.some(v => v.productName === productName));
+    if (!product) {
+      alert('Product not found');
+      return;
+    }
+
+    const variation = product.variations.find(v => v.productName === productName);
+    if (variation.quantity < orderQuantity) {
+      alert('Insufficient stock');
+      return;
+    }
+
+    // Add order to "orders" reference
+    const orderRef = ref(db, 'orders');
+    await push(orderRef, { ...orderDetails });
+
+    // Update product quantity
+    const variationRef = ref(db, `products/${product.id}/variations/${product.variations.indexOf(variation)}`);
+    await update(variationRef, { quantity: variation.quantity - orderQuantity });
+
+    // Reset order details
+    setOrderDetails({ customer: '', location: '', productName: '', orderQuantity: 1 });
+  };
+
+  const filteredProducts = products.flatMap(product =>
+    product.variations
+      .filter(variation =>
+        variation.productName.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .map(variation => ({ ...variation, productId: product.id }))
+  );
+
+  return (
+    <div className={styles.parent}>
+      <Link to="/dashboard" className={styles.logo}>
+        <img src={image} alt="Logo" />
+      </Link>
+      <div className={`${styles.div2} ${isCollapsed ? styles.hidden : styles.visible}`}>
+        <div className={styles.buttonContainer}>
+          <Link to="/inventory" className={styles.button1}><FontAwesomeIcon icon={faClipboardList} /> Inventory</Link>
+          <Link to="/order" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> Order</Link>
+          <Link to="/supplier" className={styles.button3}><FontAwesomeIcon icon={faIndustry} /> Supplier</Link>
+          <Link to="/misc" className={styles.button4}><FontAwesomeIcon icon={faEllipsis} /> Misc</Link>
+        </div>
+        <div className={styles.buttonRow}>
+          <div className={styles.buttonProfile} onClick={() => setShowModal(true)}>
+            <FontAwesomeIcon icon={faUser} />
+          </div>
+          <div className={styles.buttonLogout} onClick={handleLogout}>
+            <FontAwesomeIcon icon={faSignOutAlt} />
+          </div>
+        </div>
+      </div>
+      <div className={`${styles.content} ${isCollapsed ? styles.fullWidth : ''}`}>
+        <button className={styles.toggleButton} onClick={toggleCollapse}>
+          <FontAwesomeIcon icon={faBars} />
+        </button>
+        <div className={styles.contentTop}>
+          <Link to="/order" className={styles.navButton1}>Order</Link>
+          <Link to="/orderlist" className={styles.navButton2}>Order List</Link>
+        </div>
+        <div className={styles.contentBottom}>
+          <form onSubmit={handleSubmit} className={styles.orderForm}>
+            <input
+              type="text"
+              name="customer"
+              placeholder="Customer Name"
+              value={orderDetails.customer}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="text"
+              name="location"
+              placeholder="Location"
+              value={orderDetails.location}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="text"
+              name="productName"
+              placeholder="Product Name"
+              value={orderDetails.productName}
+              onChange={handleInputChange}
+              list="productList"
+              required
+            />
+            <datalist id="productList">
+              {filteredProducts.map((variation) => (
+                <option key={variation.productId} value={variation.productName} />
+              ))}
+            </datalist>
+            <input
+              type="number"
+              name="orderQuantity"
+              placeholder="Order Quantity"
+              value={orderDetails.orderQuantity}
+              onChange={handleInputChange}
+              min="1"
+              required
+            />
+            <button type="submit"><FontAwesomeIcon icon={faSave} /> Add Order</button>
+          </form>
+          <div className={styles.productTable}>
+            <h3>Available Products</h3>
+            <input
+              type="text"
+              placeholder="Search by product name"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Quantity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((variation, index) => (
+                    <tr key={`${variation.productId}-${index}`}>
+                      <td>{variation.productName}</td>
+                      <td>{variation.quantity}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="2">No products found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {showModal && <Modal onClose={() => setShowModal(false)} />}
+      {currentUser && (
+        <div className={styles.userInfo}>
+          <p>Welcome, {currentUser.firstName}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Order;
+
+
+
+import React, { useEffect, useState } from 'react';
+import styles from './Order.module.css';
+import image from '../images/logo.png';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBars, faClipboardList, faEllipsis, faIndustry, faShoppingCart, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { Link, useNavigate } from 'react-router-dom';
+import { auth, db } from '../firebase';
+import Modal from './Modal';
+import { ref, get, update, onValue, push } from 'firebase/database';
+
+const Order = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [orderDetails, setOrderDetails] = useState({ customer: '', location: '', productName: '', orderQuantity: 1, totalPrice: 0 });
+  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = ref(db, `users/${user.uid}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          setCurrentUser(snapshot.val());
+        }
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    const productRef = ref(db, 'products');
+    onValue(productRef, (snapshot) => {
+      const data = snapshot.val();
+      const productList = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+      setProducts(productList);
+    });
+  }, []);
+
+  const toggleCollapse = () => {
+    setIsCollapsed(prevState => !prevState);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setOrderDetails(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { productName, orderQuantity } = orderDetails;
+
+    const product = products.find(p => p.variations.some(v => v.productName === productName));
+    if (!product) {
+      alert('Product not found');
+      return;
+    }
+
+    const variation = product.variations.find(v => v.productName === productName);
+    if (variation.quantity < orderQuantity) {
+      alert('Insufficient stock');
+      return;
+    }
+
+    const totalPrice = (variation.productPrice * orderQuantity).toFixed(2);
+    const orderRef = ref(db, 'orders');
+    await push(orderRef, { ...orderDetails, totalPrice });
+
+    const variationRef = ref(db, `products/${product.id}/variations/${product.variations.indexOf(variation)}`);
+    await update(variationRef, { quantity: variation.quantity - orderQuantity });
+
+    setOrderDetails({ customer: '', location: '', productName: '', orderQuantity: 1, totalPrice: 0 });
+  };
+
+  const filteredProducts = products.flatMap(product =>
+    product.variations
+      .map(variation => ({ ...variation, productId: product.id }))
+  );
+
+  return (
+    <div className={styles.parent}>
+      <Link to="/dashboard" className={styles.logo}>
+        <img src={image} alt="Logo" />
+      </Link>
+      <div className={`${styles.div2} ${isCollapsed ? styles.hidden : styles.visible}`}>
+        <div className={styles.buttonContainer}>
+          <Link to="/inventory" className={styles.button1}><FontAwesomeIcon icon={faClipboardList} /> Inventory</Link>
+          <Link to="/order" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> Order</Link>
+          <Link to="/supplier" className={styles.button3}><FontAwesomeIcon icon={faIndustry} /> Supplier</Link>
+          <Link to="/misc" className={styles.button4}><FontAwesomeIcon icon={faEllipsis} /> Misc</Link>
+        </div>
+        <div className={styles.buttonRow}>
+          <div className={styles.buttonProfile} onClick={() => setShowModal(true)}>
+            <FontAwesomeIcon icon={faUser} />
+          </div>
+          <div className={styles.buttonLogout} onClick={handleLogout}>
+            <FontAwesomeIcon icon={faSignOutAlt} />
+          </div>
+        </div>
+      </div>
+      <div className={`${styles.content} ${isCollapsed ? styles.fullWidth : ''}`}>
+        <button className={styles.toggleButton} onClick={toggleCollapse}>
+          <FontAwesomeIcon icon={faBars} />
+        </button>
+        <div className={styles.contentTop}>
+          <Link to="/order" className={styles.navButton1}>Order</Link>
+          <Link to="/orderlist" className={styles.navButton2}>Order List</Link>
+        </div>
+        <div className={styles.contentBottom}>
+          <div className={styles.formUpdate}>
+            <form onSubmit={handleSubmit} className={styles.orderForm}>
+              <input
+                type="text"
+                name="customer"
+                placeholder="Customer Name"
+                value={orderDetails.customer}
+                onChange={handleInputChange}
+                required
+              />
+              <input
+                type="text"
+                name="location"
+                placeholder="Location"
+                value={orderDetails.location}
+                onChange={handleInputChange}
+                required
+              />
+              <input
+                type="text"
+                name="productName"
+                placeholder="Product Name"
+                value={orderDetails.productName}
+                onChange={handleInputChange}
+                list="productList"
+                required
+              />
+              <datalist id="productList">
+                {filteredProducts.map((variation) => (
+                  <option key={variation.productId} value={variation.productName} />
+                ))}
+              </datalist>
+              <input
+                type="number"
+                name="orderQuantity"
+                placeholder="Order Quantity"
+                value={orderDetails.orderQuantity}
+                onChange={handleInputChange}
+                min="1"
+                required
+              />
+              <button type="submit" className={styles.submitButton}><FontAwesomeIcon icon={faSave} /> Add Order</button>
+            </form> 
+          </div>
+        </div>
+      </div>
+      {showModal && <Modal onClose={() => setShowModal(false)} />}
+      {currentUser && (
+        <div className={styles.userInfo}>
+          <p>Welcome, {currentUser.firstName}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Order;

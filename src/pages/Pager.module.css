@@ -1,0 +1,114 @@
+.parent {
+  display: flex;
+  height: 100vh;
+}
+
+.leftColumn {
+  flex: 0 0 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+}
+
+.logo {
+  max-width: 70%;
+}
+
+.rightColumn {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+}
+
+.formContainer {
+  width: 100%;
+  max-width: 350px; /* Increased max width for a wider form */
+  padding: 1.5rem; /* Reduced padding for a smaller appearance */
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.formContainer:hover {
+  transform: translateY(-3px);
+}
+
+h1 {
+  text-align: center;
+  color: #3f51b5;
+  margin-bottom: 1.5rem;
+}
+
+.inputUnderline {
+  border: none;
+  border-bottom: 2px solid #ccc;
+  outline: none;
+  width: 100%;
+  padding: 0.5rem 0; /* Reduced padding for smaller inputs */
+  transition: border-color 0.3s ease;
+  margin-bottom: 1rem; /* Adjusted margin for spacing */
+}
+
+.inputUnderline:focus {
+  border-bottom: 2px solid #3f51b5;
+}
+
+.genderContainer {
+  margin-bottom: 1rem; /* Adjusted margin for better spacing */
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.radioLabel {
+  margin-right: 1rem;
+}
+
+.submitButton {
+  width: 100%;
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem; /* Adjusted padding for the button */
+  transition: background 0.3s ease;
+  margin-top: 1rem;
+}
+
+.submitButton:hover {
+  background-color: #303f9f;
+}
+
+.errorMessage {
+  color: red;
+  text-align: center;
+  margin-top: 1rem;
+}
+.genderContainer {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+input{
+  height: 3rem;
+  font-size: 1.05rem;
+}
+
+.loginButton {
+  width: 100%;
+  background-color: #b5823f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem;
+  transition: background 0.3s ease;
+  margin-top: 1rem;
+}
