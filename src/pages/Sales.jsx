@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './Sales.module.css';
 import image from '../images/logo.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faEllipsis, faIndustry, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faShoppingCart, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import Modal from './Modal';
@@ -107,8 +107,9 @@ const Sales = () => {
       <div className={styles.pagename}>| Sales</div>
       <div className={`${styles.div2} ${isCollapsed ? styles.hidden : styles.visible}`}>
         <div className={styles.buttonContainer}>
-          <Link to="/history" className={styles.button3}><FontAwesomeIcon icon={faIndustry} /> History</Link>
-          <Link to="/sales" className={styles.button4}><FontAwesomeIcon icon={faEllipsis} /> Sales</Link>
+          <Link to="/sales" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> Sales</Link>
+          <Link to="/history" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> History</Link>
+          <Link to="/pager" className={styles.button3}><FontAwesomeIcon icon={faShoppingCart} /> Create User</Link>
         </div>
         <div className={styles.buttonRow}>
           <div className={styles.buttonProfile} onClick={() => setShowModal(true)}><FontAwesomeIcon icon={faUser} /></div>

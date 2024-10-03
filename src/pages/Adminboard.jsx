@@ -182,6 +182,7 @@ const Adminboard = () => {
         <div className={styles.buttonContainer}>
           <Link to="/sales" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> Sales</Link>
           <Link to="/history" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> History</Link>
+          <Link to="/pager" className={styles.button3}><FontAwesomeIcon icon={faShoppingCart} /> Create User</Link>
         </div>
         <div className={styles.buttonRow}>
         <div className={styles.buttonProfile} onClick={() => setShowModal(true)}>

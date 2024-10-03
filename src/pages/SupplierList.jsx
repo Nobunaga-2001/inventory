@@ -102,7 +102,6 @@ const SupplierList = () => {
         <div className={styles.contentTop}>
           <Link to="/supplier" className={styles.navButton1}>Supplier</Link>
           <Link to="/supplierlist" className={styles.navButton2}>Supplier List</Link>
-          <Link to="/supplies" className={styles.navButton2}>Supplies</Link>
         </div>
         <div className={styles.contentBottom}>
           <table className={styles.supplierTable}>

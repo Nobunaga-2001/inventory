@@ -18,6 +18,7 @@ import Adminreg from './pages/Adminreg';
 import Landingpage from './pages/Landingpage';
 import History from './pages/History';
 import Practice from './pages/Practice';
+import Userlist from './pages/Userlist';
 
 
 
@@ -41,6 +42,7 @@ function App() {
       <Route path="/adminreg" element={<Adminreg/>} />
       <Route path="/history" element={<History/>} />
       <Route path="/prac" element={<Practice/>} />
+      <Route path="/userlist" element={<Userlist/>} />
       </Routes>
     </Router>
   );

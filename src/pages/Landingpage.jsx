@@ -46,18 +46,7 @@ const LandingPage = () => {
   .div3 { grid-area: 6 / 6 / 7 / 8; }
   .div4 { grid-area: 9 / 6 / 10 / 8; }
   .div5 { grid-area: 4 / 6 / 10 / 8; }*/
-  const buttonStyle2 = {
-    display :  9 / 6 / 10 / 8,
-    padding: '15px 30px',
-    fontSize: '1.2rem',
-    color: '#fff',
-    backgroundColor: '#28a745',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    margin: '10px',
-    transition: 'background-color 0.3s ease',
-  };
+ 
 
   const buttonStyle3 = {
     display: 4 / 6 / 5 / 8,
@@ -92,14 +81,6 @@ const LandingPage = () => {
       </header>
 
       <div>
-        <button
-          style={buttonStyle2}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          onClick={() => navigate('/pager')}
-        >
-          User Registration
-        </button>
         <button
           style={buttonStyle}
           onMouseEnter={handleMouseEnter}
