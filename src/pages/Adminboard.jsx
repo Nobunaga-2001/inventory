@@ -3,7 +3,7 @@ import styles from './Adminboard.module.css';
 import image from '../images/logo.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
-import { faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import Modal from './Modal';
@@ -16,6 +16,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 const Adminboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [productsSold, setProductsSold] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
   const [recentlyAddedProducts, setRecentlyAddedProducts] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -26,14 +27,15 @@ const Adminboard = () => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
+
+   useEffect(() => {
     const fetchUserData = async () => {
       const user = auth.currentUser;
       if (user) {
         const userRef = ref(db, `users/${user.uid}`);
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
-          // Handle user data if needed
+          setCurrentUser(snapshot.val());
         }
       }
     };
@@ -178,20 +180,28 @@ const Adminboard = () => {
       <Link to="/adminboard" className={styles.logo}>
         <img src={image} alt="Logo" />
       </Link>
+      <div className={styles.searchbar}>
+  {currentUser?.photoURL && (
+    <div className={styles.userProfileImage} onClick={() => setShowModal(true)}>
+      <img
+        src={currentUser.photoURL}
+        alt="User Profile"
+        className={styles.userProfileImage}
+      />
+    </div>
+    
+  )}
+   <div className={styles.buttonLogout} onClick={handleLogout}>
+            <FontAwesomeIcon icon={faSignOutAlt} />
+    </div>
+</div>
       <div className={`${styles.div2} ${isCollapsed ? styles.hidden : styles.visible}`}>
         <div className={styles.buttonContainer}>
           <Link to="/sales" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> Sales</Link>
           <Link to="/history" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> History</Link>
           <Link to="/pager" className={styles.button3}><FontAwesomeIcon icon={faShoppingCart} /> Create User</Link>
         </div>
-        <div className={styles.buttonRow}>
-        <div className={styles.buttonProfile} onClick={() => setShowModal(true)}>
-            <FontAwesomeIcon icon={faUser} />
-          </div>
-          <div className={styles.buttonLogout} onClick={handleLogout}>
-            <FontAwesomeIcon icon={faSignOutAlt} />
-          </div>
-        </div>
+        
       </div>
       <div className={`${styles.content} ${isCollapsed ? styles.fullWidth : ''}`}>
         <button className={styles.toggleButton} onClick={toggleCollapse}>
@@ -207,8 +217,8 @@ const Adminboard = () => {
                   <option key={index} value={index}>{new Date(0, index).toLocaleString('default', { month: 'long' })}</option>
                 ))}
               </select>
-              <h2>Monthly Sales: {monthlySales[selectedMonth] || 0}</h2>
-              <h2>Annual Sales: {annualSales}</h2>
+              <h2>Monthly Sales: ₱{monthlySales[selectedMonth] || 0}</h2>
+              <h2>Annual Sales: ₱{annualSales}</h2>
             </div>
             <div className={styles.right}>
               <div className={styles.chart}>

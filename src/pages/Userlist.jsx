@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import styles from './Pager.module.css';
+import styles from './Userlist.module.css';
 import image from '../images/logo.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
-import { faUser, faSignOutAlt} from '@fortawesome/free-solid-svg-icons';
+import { faBars, faShoppingCart, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import Modal from './Modal';
-import { ref, get } from 'firebase/database';
+import { ref, get, remove } from 'firebase/database';
 import { sendPasswordResetEmail } from 'firebase/auth';
 
 const Pager = () => {
@@ -70,6 +69,18 @@ const Pager = () => {
     }
   };
 
+  const handleDeleteUser = async (uid) => {
+    try {
+      const userRef = ref(db, `users/${uid}`);
+      await remove(userRef);
+      alert('User deleted successfully');
+      setUsers(users.filter(user => user.uid !== uid)); // Update state after deletion
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Error deleting user.');
+    }
+  };
+
   return (
     <div className={styles.parent}>
       <Link to="/adminboard" className={styles.logo}>
@@ -114,6 +125,9 @@ const Pager = () => {
                     <td>
                       <button onClick={() => handleResetPassword(user.email)}>
                         Reset Password
+                      </button>
+                      <button  className={styles.delbutton} onClick={() => handleDeleteUser(user.uid)}>
+                        Delete User
                       </button>
                     </td>
                   </tr>

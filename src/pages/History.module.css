@@ -180,10 +180,19 @@
 }
 
 .searchbar {
-  grid-area: 1 / 3 / 2 / 12;
+  grid-area: 1 / 3 / 2 / 12; /* Keeping the grid position */
+  background-color: white;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start; /* Change to flex-start to avoid pushing items */
+  align-items: center; /* Center items vertically */
+  padding: 10px; /* Optional: adds padding */
+}
+
+.userProfileImage {
+  width: 60px; /* Adjust size as needed */
+  height: 60px; /* Adjust size as needed */
+  border-radius: 50%; /* For a circular image */
+  margin-left: auto; /* Space from other items, if needed */
 }
 
 .pagename {

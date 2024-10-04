@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './Sales.module.css';
 import image from '../images/logo.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faShoppingCart, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faShoppingCart, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import Modal from './Modal';
@@ -98,12 +98,20 @@ const Sales = () => {
         <img src={image} alt="Logo" />
       </Link>
       <div className={styles.searchbar}>
-        {currentUser && (
-          <div className={styles.userInfo}>
-            <p>Welcome, {currentUser.firstName}</p>
-          </div>
-        )}
-      </div>
+  {currentUser?.photoURL && (
+    <div className={styles.userProfileImage} onClick={() => setShowModal(true)}>
+      <img
+        src={currentUser.photoURL}
+        alt="User Profile"
+        className={styles.userProfileImage}
+      />
+    </div>
+    
+  )}
+   <div className={styles.buttonLogout} onClick={handleLogout}>
+            <FontAwesomeIcon icon={faSignOutAlt} />
+    </div>
+</div>
       <div className={styles.pagename}>| Sales</div>
       <div className={`${styles.div2} ${isCollapsed ? styles.hidden : styles.visible}`}>
         <div className={styles.buttonContainer}>
@@ -111,10 +119,7 @@ const Sales = () => {
           <Link to="/history" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> History</Link>
           <Link to="/pager" className={styles.button3}><FontAwesomeIcon icon={faShoppingCart} /> Create User</Link>
         </div>
-        <div className={styles.buttonRow}>
-          <div className={styles.buttonProfile} onClick={() => setShowModal(true)}><FontAwesomeIcon icon={faUser} /></div>
-          <div className={styles.buttonLogout} onClick={handleLogout}><FontAwesomeIcon icon={faSignOutAlt} /></div>
-        </div>
+      
       </div>
       <div className={`${styles.content} ${isCollapsed ? styles.fullWidth : ''}`}>
         <button className={styles.toggleButton} onClick={toggleCollapse}><FontAwesomeIcon icon={faBars} /></button>

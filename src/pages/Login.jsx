@@ -102,9 +102,7 @@ const Login = () => {
             <button type="submit" className={styles.submitButton} disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </button>
-            <button type="button" className={styles.createAccountButton} onClick={() => navigate('/pager')}>
-              Create Account
-            </button>
+           
             {error && <p className={styles.errorMessage}>{error}</p>}
           </form>
         </div>

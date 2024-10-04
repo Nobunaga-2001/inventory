@@ -70,7 +70,7 @@ const Modal = ({ onClose }) => {
         <span className={styles.close} onClick={onClose}>&times;</span>
         {userData ? (
           <div className={styles.content}>
-            <h2>Wanted</h2>
+            <h2>Profile</h2>
             {userData.photoURL && (
               <img src={userData.photoURL} alt="Profile" className={styles.profileImage} />
             )}

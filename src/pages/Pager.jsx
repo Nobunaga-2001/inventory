@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import styles from './Pager.module.css';
 import image from '../images/logo.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars,faShoppingCart } from '@fortawesome/free-solid-svg-icons';
-import { faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import Modal from './Modal';
@@ -106,14 +106,7 @@ const Pager = () => {
           <Link to="/history" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> History</Link>
           <Link to="/pager" className={styles.button3}><FontAwesomeIcon icon={faShoppingCart} /> Create User</Link>
         </div>
-        <div className={styles.buttonRow}>
-          <div className={styles.buttonProfile} onClick={() => setShowModal(true)}>
-            <FontAwesomeIcon icon={faUser} />
-          </div>
-          <div className={styles.buttonLogout} onClick={handleLogout}>
-            <FontAwesomeIcon icon={faSignOutAlt} />
-          </div>
-        </div>
+        
       </div>
       <div className={`${styles.content} ${isCollapsed ? styles.fullWidth : ''}`}>
         <button className={styles.toggleButton} onClick={toggleCollapse}>
@@ -196,16 +189,27 @@ const Pager = () => {
           </div>
         </div>
       </div>
-      <div className={styles.searchbar}>Search Bar</div>
+      <div className={styles.searchbar}>
+  {currentUser?.photoURL && (
+    <div className={styles.userProfileImage} onClick={() => setShowModal(true)}>
+      <img
+        src={currentUser.photoURL}
+        alt="User Profile"
+        className={styles.userProfileImage}
+      />
+    </div>
+    
+  )}
+   <div className={styles.buttonLogout} onClick={handleLogout}>
+            <FontAwesomeIcon icon={faSignOutAlt} />
+    </div>
+</div>
+
       <div className={styles.pagename}>| Create User Account</div>
 
       {showModal && <Modal onClose={() => setShowModal(false)} />}
 
-      {currentUser && (
-        <div className={styles.userInfo}>
-          <p>Welcome, {currentUser.firstName}</p>
-        </div>
-      )}
+      
     </div>
   );
 };
