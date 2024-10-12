@@ -5,6 +5,7 @@
     gap: 0;
     height: 100vh;
   }
+
   
   .logo {
     grid-area: 1 / 1 / 3 / 3;
@@ -188,19 +189,17 @@
    
 }
 
+
+
+
+
+
+
 .left{
   width: 30%;
 }
 
-.right, .chart{
-    width: 70%;
-    
-}
 
-.chart{
-    height: 100%;
-    padding-left: 20%;
-}
 
 
   
@@ -324,3 +323,87 @@
   .right {
     flex-grow: 1; /* Allow the right section to take remaining space */
   }
+/* Styles for the Receipt Modal */
+.receiptModal {
+  position: fixed; /* Fixed positioning for modal */
+  top: 50%; /* Center modal vertically */
+  left: 50%; /* Center modal horizontally */
+  transform: translate(-50%, -50%); /* Centering */
+  background-color: white; /* White background for modal */
+  border-radius: 8px; /* Rounded corners */
+  padding: 20px; /* Padding inside the modal */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+  z-index: 1000; /* Ensure modal is on top */
+  width: 90%; /* Responsive width */
+  max-width: 400px; /* Maximum width for a more realistic receipt */
+  overflow-y: auto; /* Scroll if content overflows */
+  font-family: 'Courier New', Courier, monospace; /* Monospace font for receipt feel */
+}
+
+/* Receipt Header */
+.receiptModal h2 {
+  margin: 0; /* Remove default margin */
+  margin-bottom: 15px; /* Space below heading */
+  text-align: center; /* Center heading */
+  font-size: 1.5em; /* Larger heading */
+  border-bottom: 1px dashed #ccc; /* Dashed border for separation */
+  padding-bottom: 10px; /* Space below border */
+}
+
+/* Item List Styles */
+.receiptModal .item {
+  display: flex; /* Use flexbox for item layout */
+  justify-content: space-between; /* Space between item name and price */
+  margin: 5px 0; /* Space between items */
+}
+
+.receiptModal p {
+  margin: 5px 0; /* Space between paragraphs */
+  line-height: 1.5; /* Line height for readability */
+}
+
+/* Styles for Close Button in the Receipt Modal */
+.receiptModal button {
+  background-color: #e74c3c; /* Red background */
+  color: white; /* White text */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 10px 15px; /* Padding inside the button */
+  cursor: pointer; /* Pointer cursor */
+  transition: background-color 0.3s ease; /* Transition effect */
+  width: 10%; /* Full-width button */
+  margin-top: 15px; /* Space above button */
+  
+}
+
+.receiptModal button:hover {
+  background-color: #c0392b; /* Darker red on hover */
+}
+
+/* Footer Styles */
+.receiptModal .footer {
+  border-top: 1px dashed #ccc; /* Dashed border at the top of footer */
+  margin-top: 10px; /* Space above footer */
+  padding-top: 10px; /* Space below footer */
+  text-align: right; /* Align total to the right */
+}
+
+.receiptModal .footer p {
+  font-weight: bold; /* Bold font for total */
+}
+
+/* Optional Styles for Receipt Logo or Store Name */
+.receiptModal .store-name {
+  text-align: center; /* Center store name */
+  font-size: 1.2em; /* Slightly larger font */
+  margin-bottom: 10px; /* Space below store name */
+}
+
+
+.rightR{
+  width:80%;
+}
+
+.leftR{
+  width: 20%;
+}

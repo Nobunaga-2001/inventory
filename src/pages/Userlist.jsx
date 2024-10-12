@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './Userlist.module.css';
 import image from '../images/logo.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faShoppingCart, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faUser, faSignOutAlt, faHistory, faSackDollar } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import Modal from './Modal';
@@ -88,9 +88,11 @@ const Pager = () => {
       </Link>
       <div className={`${styles.div2} ${isCollapsed ? styles.hidden : styles.visible}`}>
         <div className={styles.buttonContainer}>
-          <Link to="/sales" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> Sales</Link>
-          <Link to="/history" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> History</Link>
-          <Link to="/pager" className={styles.button3}><FontAwesomeIcon icon={faShoppingCart} /> Create User</Link>
+              <Link to="/sales" className={styles.button2}><FontAwesomeIcon icon={faSackDollar} /> Sales</Link>
+              <Link to="/history" className={styles.button2}><FontAwesomeIcon icon={faHistory} /> History</Link>
+              <Link to="/pager" className={styles.button3}><FontAwesomeIcon icon={faUser} /> Create User</Link>
+              <Link to="/admininventory" className={styles.button2}><FontAwesomeIcon icon={faHistory} /> Inventory</Link>
+              <Link to="/supplier" className={styles.button3}><FontAwesomeIcon icon={faUser} /> Supplier</Link>
         </div>
         <div className={styles.buttonRow}>
           <div className={styles.buttonProfile} onClick={() => setShowModal(true)}>
@@ -137,7 +139,7 @@ const Pager = () => {
           </div>
         </div>
       </div>
-      <div className={styles.searchbar}>Search Bar</div>
+      <div className={styles.searchbar}></div>
       <div className={styles.pagename}>| Create User Account</div>
 
       {showModal && <Modal onClose={() => setShowModal(false)} />}

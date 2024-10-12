@@ -1,338 +1,352 @@
+/* Grid Container */
 .parent {
-    display: grid;
-    grid-template-columns: repeat(10, 10%);
-    grid-template-rows: repeat(10, 10%);
-    gap: 0;
-    height: 100vh;
-  }
-  
-  .logo {
-    grid-area: 1 / 1 / 3 / 3;
-    background-color: #05bb3300;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .logo img {
-    max-width: 80%; /* Ensures the image fits within the div */
-    height: auto;    /* Maintains aspect ratio */
-  }
-  
-  .div2 {
-    grid-area: 3 / 1 / 11 / 3;
-    background-color: #ffffff00;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    transition: width 0.5s ease;
-  }
-  
-  .visible {
-    width: 100%;
-  }
-  
-  .hidden {
-    width: 20;
-    overflow:hidden;
-  }
-  
-  .buttonContainer {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-  }
-  
-  .button1, .button2, .button3, .button4 {
-    margin: 10px 0;
-    padding: 10px 20px;
-    background-color: rgb(48, 34, 182);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    height: 35px;
-    width: 170px;
-    font-size: 1.5rem;
-    text-decoration: none;
-  }
-  
-  .button1:hover, .button2:hover, .button3:hover, .button4:hover {
-    background-color: #3c6421;
-  }
-  .buttonRow {
-    display: flex;
-    justify-content: center; /* Center the buttons */
-    width: 100%;
-    padding: 10px 0;
-  }
-  
-  .buttonProfile, .buttonLogout {
-    margin: 0 5px; /* Add a small margin for spacing */
-    padding: 0; /* Reset padding */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    height: 40px; /* Make it square */
-    width: 40px;  /* Make it square */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5rem;
-  }
-  .buttonProfile{
-    background-color: rgb(48, 34, 182);
-  }
+  display: grid;
+  grid-template-columns: repeat(10, 10%);
+  grid-template-rows: repeat(10, 10%);
+  gap: 0;
+  height: 100vh;
+}
 
-  .buttonLogout{
-    background-color: #2d742d;
-  }
-  
-  .buttonProfile:hover, .buttonLogout:hover {
-    background-color: #A90016;
-  }
+/* Logo Section */
+.logo {
+  grid-area: 1 / 1 / 3 / 3;
+  background-color: #05bb3300;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-  .content {
-    grid-area: 3 / 3 / 11 / 11;
-    position: relative;
-    background-color: white;
-    transition: width 3.0s ease;
-    display: flex;
-    flex-direction: column; /* Allows stacking of top and bottom */
-    height: 100%; /* Ensure it takes full height */
-  }
-  
-   .orderlist{
-    height: 70%;
-    margin: 5%;
-    border: red 1px solid;
-   }
+.logo img {
+  max-width: 80%; /* Ensures the image fits within the div */
+  height: auto;    /* Maintains aspect ratio */
+}
 
-  .fullWidth {
-    grid-area: 3 / 1 / 11 / 11;
-  }
-  
-  .contentTop {
-    height: 10%; /* 10% of the total height */
-    background-color: #ffffff; /* Example color */
-    display: flex; /* Use flex to align items */
-    justify-content: center; /* Center items horizontally */
-    align-items: center; /* Center items vertically */
-  }
-  
-  .navButton1, .navButton2 {
-    margin: 0 10px; /* Add margin for spacing */
-    padding: 10px 20px;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-    height: 25px;
-    
-  }
+/* Side Panel */
+.div2 {
+  grid-area: 3 / 1 / 11 / 3;
+  background-color: #ffffff00;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: width 0.5s ease;
+}
 
-  .navButton1{
-    background-color: rgb(48, 34, 182);
-  }
+.visible {
+  width: 100%;
+}
 
-  .navButton2{
-    background-color: rgb(36, 141, 10);
-  }
-  
-  .navButton1:hover {
-    padding-top: 15px;
-    background-color: rgb(66, 45, 255); /* Change color on hover */
-    height: 30px;
-  }
-  
-  
-  .contentBottom {
-    height: 90%; /* 90% of the total height */
-    overflow-y: auto; /* Add scroll if content overflows */
-  }
-  
-  
-  .toggleButton {
-    position: absolute;
-    left: 0px;
-    height: 60px; /* Make it square */
-    width: 30px;  /* Make it square */
-    top: 5%;
-    transform: translateY(-50%);
-    background-color: #2774da79;
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5rem; /* Adjust as needed */
-    transition: toggle 1.5s ease-in;
-  }
-  
-  .toggleButton:hover {
-    background-color: #A90016;
-  }
-  
-  .div4 {
-    grid-area: 1 / 3 / 3 / 11;
-    background-color: #D0021B;
-  }
-  
-  .searchbar {
-    grid-area: 1 / 3 / 2 / 12;
-    display: flex;
-    justify-content: end;
-    align-items: end;
-    padding-right: 5%;
-  }
-  
-  .pagename {
-    grid-area: 2 / 3 / 2 / 12;
-    background-color: #ffffff;
-    font-size: 3rem;
-  }
+.hidden {
+  width: 20; /* Adjust this to a percentage or pixel value */
+  overflow: hidden;
+}
 
-  
-.orderTable th, .orderTable td {
-    padding: 12px;
-    text-align: left;
-    border: 1px solid #ddd;
-  }
-  
-  .orderTable th {
-    background-color: #3326e2;
-    color: #333;
-  }
+/* Button Container */
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
 
+/* Button Styles */
+.button1,
+.button2,
+.button3,
+.button4 {
+  margin: 10px 0;
+  padding: 10px 20px;
+  background-color: rgb(48, 34, 182);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  height: 35px;
+  width: 170px;
+  font-size: 1.5rem;
+  text-decoration: none;
+}
+
+.button1:hover,
+.button2:hover,
+.button3:hover,
+.button4:hover {
+  background-color: #3c6421;
+}
+
+/* Button Row */
+.buttonRow {
+  display: flex;
+  justify-content: center; /* Center the buttons */
+  width: 100%;
+  padding: 10px 0;
+}
+
+/* Profile and Logout Buttons */
+.buttonProfile,
+.buttonLogout {
+  margin: 0 5px; /* Add a small margin for spacing */
+  padding: 0; /* Reset padding */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  height: 40px; /* Make it square */
+  width: 40px;  /* Make it square */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+}
+
+.buttonProfile {
+  background-color: rgb(48, 34, 182);
+}
+
+.buttonLogout {
+  background-color: #2d742d;
+}
+
+.buttonProfile:hover,
+.buttonLogout:hover {
+  background-color: #A90016;
+}
+
+/* Main Content Area */
+.content {
+  grid-area: 3 / 3 / 11 / 11;
+  position: relative;
+  background-color: white;
+  transition: width 3.0s ease;
+  display: flex;
+  flex-direction: column; /* Allows stacking of top and bottom */
+  height: 100%; /* Ensure it takes full height */
+}
+
+.orderlist {
+  height: 70%;
+  margin: 5%;
+  border: red 1px solid;
+}
+
+.fullWidth {
+  grid-area: 3 / 1 / 11 / 11;
+}
+
+/* Top Content Area */
+.contentTop {
+  height: 10%; /* 10% of the total height */
+  background-color: #ffffff; /* Example color */
+  display: flex; /* Use flex to align items */
+  justify-content: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+}
+
+/* Navigation Buttons */
+.navButton1,
+.navButton2 {
+  margin: 0 10px; /* Add margin for spacing */
+  padding: 10px 20px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  height: 25px;
+}
+
+.navButton1 {
+  background-color: rgb(48, 34, 182);
+}
+
+.navButton2 {
+  background-color: rgb(36, 141, 10);
+}
+
+.navButton1:hover {
+  padding-top: 15px;
+  background-color: rgb(66, 45, 255); /* Change color on hover */
+  height: 30px;
+}
+
+/* Bottom Content Area */
+.contentBottom {
+  height: 90%; /* 90% of the total height */
+  overflow-y: auto; /* Add scroll if content overflows */
+}
+
+/* Toggle Button */
+.toggleButton {
+  position: absolute;
+  left: 0px;
+  height: 60px; /* Make it square */
+  width: 30px;  /* Make it square */
+  top: 5%;
+  transform: translateY(-50%);
+  background-color: #2774da79;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem; /* Adjust as needed */
+}
+
+.toggleButton:hover {
+  background-color: #A90016;
+}
+
+/* Additional Sections */
+.div4 {
+  grid-area: 1 / 3 / 3 / 11;
+  background-color: #D0021B;
+}
+
+.searchbar {
+  grid-area: 1 / 3 / 2 / 12;
+  display: flex;
+  justify-content: end;
+  align-items: end;
+  padding-right: 5%;
+}
+
+.pagename {
+  grid-area: 2 / 3 / 2 / 12;
+  background-color: #ffffff;
+  font-size: 3rem;
+}
+
+/* Order Table Styles */
+.orderTable {
+  width: 60%; /* Adjusted to make the table smaller */
+  border-collapse: collapse; /* Keeps borders clean */
+  background-color: #ffffff; /* Table background color */
+  overflow: hidden; /* Hide overflow if needed */
+  margin: 0 auto; /* Center the table */
+}
+
+.orderTable th,
+.orderTable td {
+  padding: 8px; /* Reduced padding for smaller cells */
+  text-align: left; /* Align text to the left */
+  border: 1px solid #ddd; /* Light gray border for cells */
+  font-size: 0.8rem; /* Smaller font size for table content */
+}
+
+.orderTable th {
+  background-color: #3326e2; /* Header background color */
+  color: #ffffff; /* Header text color */
+  font-weight: bold; /* Make header text bold */
+  position: sticky; /* Sticky header on scroll */
+  top: 0; /* Stick to the top */
+  z-index: 10; /* Ensure it stays above other content */
+}
+
+.orderTable td {
+  background-color: #f9f9f9; /* Light background for table cells */
+  transition: background-color 0.3s; /* Smooth transition for hover effect */
+  font-size: 0.8rem; /* Smaller font size for table cells */
+}
+
+.orderTable tr:hover td {
+  background-color: #f1f1f1; /* Highlight row on hover */
+}
+
+/* Responsive Design for Order Table */
+@media (max-width: 768px) {
   .orderTable {
-    background-color: #ffffff;
-    width: 100%;
-    overflow-y: hidden;
+      font-size: 0.8rem; /* Adjust font size for smaller screens */
   }
-  
-  .orderTable tr:hover {
-    background-color: #f1f1f1;
-  }
-  
-  
-  .userInfo {
-    font-size: 18px;
-  }
-  
 
-  .containertable {
-    margin: 0 auto; /* Center horizontally */
-    display: flex;
-    justify-content: center; /* Center content inside flex container */
-    align-items: center; /* Center items vertically, if needed */
-    width: 80%; /* Set a width for the container */
+  .orderTable th,
+  .orderTable td {
+      padding: 6px; /* Further reduce padding for smaller screens */
   }
-  
-  .confirmationPopup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    z-index: 1000; /* Ensures it appears above other content */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .confirmationPopup p {
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .confirmationPopup button {
-    margin: 5px;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: #007BFF;
-    color: white;
-  }
-  
-  .confirmationPopup button:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Optional: Overlay to dim the background */
-  .confirmationOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999; /* Below the popup */
-  }
-  
 
-  .notificationPopup {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #ffcccc;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    z-index: 1001;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .orderTable tr {
+      display: block; /* Stack table rows */
+      margin-bottom: 10px; /* Space between rows */
   }
-  
-  .notificationPopup p {
-    margin: 0;
-    color: #d8000c;
-  }
-  
 
-  .orderDetails {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-    width: 300px; /* Adjust width as needed */
+  .orderTable td {
+      display: flex; /* Flex for table cells */
+      justify-content: space-between; /* Space items within cell */
+      border: none; /* Remove cell borders in mobile view */
   }
-  
-  .orderDetails h3 {
-    margin-top: 0;
+
+  .orderTable th {
+      display: none; /* Hide headers for mobile view */
   }
-  
-  .orderDetails button {
-    margin-top: 15px;
+
+  .orderTable tr::before {
+      content: attr(data-label); /* Use data attribute for headers */
+      font-weight: bold; /* Bold header labels */
+      display: block; /* Block display for headers */
   }
-  
-  .confirmationOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 900; /* Below the order details */
-    backdrop-filter: blur(5px); /* Blurring effect */
-  }
-  
+}
+
+/* User Info */
+.userInfo {
+  font-size: 18px;
+}
+
+/* Confirmation Popup */
+.confirmationPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1000; /* Ensures it appears above other content */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.confirmationPopup p {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.confirmationPopup button {
+  margin: 5px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #007BFF;
+  color: white;
+}
+
+.confirmationPopup button:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+}
+
+
+/* Loading Spinner */
+.loadingSpinner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 2s linear infinite; /* Animation for spinner */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

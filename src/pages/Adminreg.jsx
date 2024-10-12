@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import image from '../images/logo.png';
 import { useNavigate } from 'react-router-dom';
-import styles from './Pager.module.css';
+import styles from './Adminreg.module.css';
 
 const Adminreg = () => {
   const [email, setEmail] = useState('');

@@ -1,0 +1,248 @@
+import React, { useEffect, useState } from 'react';
+import { db } from '../firebase';
+import { ref, onValue, update, get, push } from 'firebase/database';
+import { auth } from '../firebase'; // Import auth for current user
+
+const AdminInvent = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editMode, setEditMode] = useState({});
+  const [quantities, setQuantities] = useState({});
+  const [stockChangeHistory, setStockChangeHistory] = useState([]); // To hold fetched stock change history
+  const [updating, setUpdating] = useState(false); // State for tracking update process
+
+  // Fetch products and stock change history on component mount
+  useEffect(() => {
+    const fetchProducts = () => {
+      const productsRef = ref(db, 'products');
+      onValue(productsRef, (snapshot) => {
+        const data = snapshot.val();
+        const productsList = data ? Object.entries(data).map(([key, value]) => ({ id: key, ...value })) : [];
+        setProducts(productsList);
+        setLoading(false);
+      });
+    };
+
+    const fetchStockChanges = () => {
+      const stockChangesRef = ref(db, 'stockChanges');
+      onValue(stockChangesRef, (snapshot) => {
+        const data = snapshot.val();
+        const changesList = [];
+
+        if (data) {
+          Object.entries(data).forEach(([productId, changes]) => {
+            Object.entries(changes).forEach(([changeId, change]) => {
+              changesList.push({ productId, ...change });
+            });
+          });
+        }
+
+        setStockChangeHistory(changesList); // Store the fetched stock changes
+      });
+    };
+
+    fetchProducts();
+    fetchStockChanges(); // Fetch stock changes on component mount
+  }, []);
+
+  // Handle updating the quantity and logging the stock change
+  const handleUpdateQuantity = async (productId, variationCode) => {
+    const newQuantity = quantities[variationCode];
+  
+    if (newQuantity !== undefined) {
+      const quantity = Number(newQuantity);
+      if (isNaN(quantity) || quantity < 0) {
+        alert("Please enter a valid quantity.");
+        return;
+      }
+  
+      const variationsRef = ref(db, `products/${productId}/variations`);
+      const snapshot = await get(variationsRef);
+      const variations = snapshot.val();
+  
+      if (variations) {
+        const variationToUpdate = variations.find(variation => variation.productCode === variationCode);
+  
+        if (variationToUpdate) {
+          const previousStock = variationToUpdate.quantity; // Store previous stock value
+  
+          // Check if there's an actual change before updating
+          if (quantity !== previousStock) {
+            const changeAmount = quantity - previousStock; // Calculate how many were added or sold
+            const changeType = changeAmount > 0 ? 'Added' : 'Sold'; // Determine change type
+  
+            const updates = {
+              [`${variations.indexOf(variationToUpdate)}/quantity`]: quantity,
+            };
+  
+            // Set updating state to true to disable button
+            setUpdating(true);
+  
+            // Fetch the current user before saving the change
+            const user = auth.currentUser; // Get the currently authenticated user
+            let currentUserData = { firstName: 'Unknown', uid: 'Unknown' }; // Default values
+            if (user) {
+              const userRef = ref(db, `users/${user.uid}`); // Reference to the user's data in the database
+              const userSnapshot = await get(userRef); // Retrieve the user data
+              if (userSnapshot.exists()) {
+                currentUserData = userSnapshot.val(); // If data exists, set it in the currentUserData
+              }
+            }
+  
+            // Update the variations in Firebase
+            await update(variationsRef, updates);
+  
+            alert("Quantity updated successfully!");
+  
+            // Log the stock change under the specific product ID
+            const stockChangeRef = ref(db, `stockChanges/${productId}`);
+            const changeLog = {
+              variationCode,
+              productName: variationToUpdate.productName, // Add product name here
+              currentStock: quantity,
+              previousStock,
+              quantityChanged: Math.abs(changeAmount), // Store absolute value of the change
+              changeDate: new Date().toISOString(),
+              changeType,
+              firstName: currentUserData.firstName || 'Unknown', // Use the fetched first name
+            };
+  
+            // Check for duplicate entries before pushing to Firebase and state
+            const isDuplicate = stockChangeHistory.some(change =>
+              change.variationCode === variationCode &&
+              change.currentStock === quantity &&
+              change.previousStock === previousStock &&
+              change.changeType === changeType &&
+              new Date(change.changeDate).toISOString() === changeLog.changeDate
+            );
+  
+            if (!isDuplicate) {
+              // Use push to create a unique entry for each change under the product ID
+              await push(stockChangeRef, changeLog);
+              setStockChangeHistory(prev => [...prev, changeLog]); // Update local state
+            } else {
+              alert("This change has already been logged."); // Alert for duplicate changes
+            }
+          } else {
+            alert("No changes to update."); // Alert if there's no change
+          }
+          setEditMode(prev => ({ ...prev, [variationCode]: false }));
+          setUpdating(false); // Reset updating state
+        } else {
+          console.error("Variation not found.");
+        }
+      } else {
+        console.error("Variations not found.");
+      }
+    }
+  };
+  
+
+  const toggleEditMode = (variationCode, currentQuantity) => {
+    setEditMode(prev => ({
+      ...prev,
+      [variationCode]: !prev[variationCode], // Toggle the edit mode for the variation
+    }));
+
+    if (!editMode[variationCode]) {
+      setQuantities(prev => ({ ...prev, [variationCode]: currentQuantity }));
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div>
+      <h1>Admin Inventory</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Date Added</th>
+            <th>Category</th>
+            <th>Image</th>
+            <th>Product Name</th>
+            <th>Product Code</th>
+            <th>Dimension</th>
+            <th>Weight</th>
+            <th>Current Stocks</th>
+            <th>Price</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product) => (
+            product.variations.map((variation) => (
+              <tr key={`${product.id}-${variation.productCode}`}>
+                <td>{product.dateAdded}</td>
+                <td>{product.productCategory}</td>
+                <td>
+                  <img src={product.imageUrl} alt={product.productCategory} style={{ width: '50px', height: '50px' }} />
+                </td>
+                <td>{variation.productName}</td>
+                <td>{variation.productCode}</td>
+                <td>{variation.productDimension}</td>
+                <td>{variation.productWeight}</td>
+                <td>
+                  {editMode[variation.productCode] ? (
+                    <input 
+                      type="number" 
+                      value={quantities[variation.productCode] || variation.quantity} 
+                      onChange={(e) => setQuantities(prev => ({ ...prev, [variation.productCode]: e.target.value }))} 
+                    />
+                  ) : (
+                    <span>{variation.quantity}</span>
+                  )}
+                </td>
+                <td>{variation.productPrice}</td>
+                <td>
+                  {editMode[variation.productCode] ? (
+                    <button onClick={() => handleUpdateQuantity(product.id, variation.productCode)} disabled={updating}>
+                      {updating ? 'Saving...' : 'Save'}
+                    </button>
+                  ) : (
+                    <button onClick={() => toggleEditMode(variation.productCode, variation.quantity)}>
+                      Edit
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))
+          ))}
+        </tbody>
+      </table>
+
+      <h2>Stock Change History</h2>
+      <table>
+            <thead>
+                <tr>
+                <th>Product Name</th> {/* New column for product name */}
+                <th>Current Stock</th>
+                <th>Previous Stock</th>
+                <th>Quantity Changed</th>
+                <th>Change Date</th>
+                <th>Change Type</th>
+                <th>User Name</th> {/* New column for First Name */}
+                </tr>
+            </thead>
+            <tbody>
+                {stockChangeHistory.map((change, index) => (
+                <tr key={`${change.productId}-${index}`}>
+                    <td>{change.productName}</td> {/* Display the product name */}
+                    <td>{change.currentStock}</td>
+                    <td>{change.previousStock}</td>
+                    <td>{change.quantityChanged}</td>
+                    <td>{new Date(change.changeDate).toLocaleString()}</td>
+                    <td>{change.changeType}</td>
+                    <td>{change.firstName}</td> {/* Display the user's first name */}
+                </tr>
+                ))}
+            </tbody>
+            </table>
+
+    </div>
+  );
+};
+
+export default AdminInvent;

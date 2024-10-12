@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import styles from './Supplier.module.css';
 import image from '../images/logo.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faClipboardList, faIndustry, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
-import { faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faHistory, faSackDollar, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import Modal from './Modal';
@@ -84,10 +84,11 @@ const Supplier = () => {
       </Link>
       <div className={`${styles.div2} ${isCollapsed ? styles.hidden : styles.visible}`}>
         <div className={styles.buttonContainer}>
-          <Link to="/inventory" className={styles.button1}><FontAwesomeIcon icon={faClipboardList} /> Inventory</Link>
-          <Link to="/order" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> Order</Link>
-          <Link to="/supplier" className={styles.button3}><FontAwesomeIcon icon={faIndustry} /> Supplier</Link>
-         
+          <Link to="/sales" className={styles.button2}><FontAwesomeIcon icon={faSackDollar} /> Sales</Link>
+          <Link to="/history" className={styles.button2}><FontAwesomeIcon icon={faHistory} /> History</Link>
+          <Link to="/pager" className={styles.button3}><FontAwesomeIcon icon={faUser} /> Create User</Link>
+          <Link to="/admininventory" className={styles.button2}><FontAwesomeIcon icon={faHistory} /> Inventory</Link>
+          <Link to="/adminsupplier" className={styles.button3}><FontAwesomeIcon icon={faUser} /> Supplier</Link>
         </div>
         <div className={styles.buttonRow}>
           <div className={styles.buttonProfile} onClick={() => setShowModal(true)}>
@@ -104,7 +105,7 @@ const Supplier = () => {
         </button>
         <div className={styles.contentTop}>
           <Link to="/supplier" className={styles.navButton1}>Supplier</Link>
-          <Link to="/supplierlist" className={styles.navButton2}>Supplier List</Link>  
+          <Link to="/supplierlist" className={styles.navButton2}>Supplier List</Link>
         </div>
         <div className={styles.contentBottom}>
           <form onSubmit={handleSubmit}>
@@ -112,7 +113,17 @@ const Supplier = () => {
             <input type="text" name="location" placeholder="Location" value={formData.location} onChange={handleInputChange} required />
             <input type="text" name="contact" placeholder="Contact" value={formData.contact} onChange={handleInputChange} required />
             <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleInputChange} required />
-            <input type="text" name="material" placeholder="Material" value={formData.material} onChange={handleInputChange} required />
+            
+            {/* Select dropdown for material with predefined values */}
+            <select name="material" value={formData.material} onChange={handleInputChange} required>
+              <option value="" disabled>Select Material</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+            
             <button type="submit">Save Supplier</button>
           </form>
         </div>

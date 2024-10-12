@@ -2,17 +2,25 @@ import React, { useEffect, useState } from 'react';
 import styles from './Inventorylist.module.css';
 import image from '../images/logo.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faCancel, faClipboardList, faEdit, faIndustry, faSave, faShoppingCart, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+  faBars,
+  faClipboardList,
+  faShoppingCart,
+  faUser,
+  faSignOutAlt,
+} from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
-import { ref, get, update, onValue, remove } from 'firebase/database';
+import { ref, get, update, onValue, push } from 'firebase/database';
 
 const Inventorylist = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [products, setProducts] = useState([]);
-  const [editableRow, setEditableRow] = useState(null);
+  const [editMode, setEditMode] = useState({});
+  const [quantities, setQuantities] = useState({});
+  const [stockChangeHistory, setStockChangeHistory] = useState([]);
+  const [updating, setUpdating] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,60 +38,161 @@ const Inventorylist = () => {
   }, []);
 
   useEffect(() => {
-    const productRef = ref(db, 'products');
-    onValue(productRef, (snapshot) => {
-      const data = snapshot.val();
-      const productList = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-      setProducts(productList);
-    });
+    const fetchProducts = () => {
+      const productsRef = ref(db, 'products');
+      onValue(productsRef, (snapshot) => {
+        const data = snapshot.val();
+        const productsList = data
+          ? Object.entries(data).map(([key, value]) => ({ id: key, ...value }))
+          : [];
+        setProducts(productsList);
+      });
+    };
+
+    const fetchStockChanges = () => {
+      const stockChangesRef = ref(db, 'stockChanges');
+      onValue(stockChangesRef, (snapshot) => {
+        const data = snapshot.val();
+        const changesList = [];
+
+        if (data) {
+          Object.entries(data).forEach(([productId, changes]) => {
+            Object.entries(changes).forEach(([changeId, change]) => {
+              changesList.push({ productId, ...change });
+            });
+          });
+        }
+
+        setStockChangeHistory(changesList);
+      });
+    };
+
+    fetchProducts();
+    fetchStockChanges();
   }, []);
 
   const toggleCollapse = () => {
-    setIsCollapsed(prevState => !prevState);
+    setIsCollapsed((prevState) => !prevState);
   };
 
   const handleLogout = async () => {
     try {
       await auth.signOut();
       navigate('/');
-      //navigate('/login');
     } catch (error) {
       console.error('Error signing out:', error);
     }
   };
 
-  const handleEditClick = (productId, variationIndex) => {
-    setEditableRow({ productId, variationIndex });
-  };
+  const handleUpdateQuantity = async (productId, variationCode) => {
+    const uniqueKey = `${productId}-${variationCode}`;
+    const newQuantity = quantities[uniqueKey];
 
-  const handleSave = async (productId, variationIndex) => {
-    const product = products.find(p => p.id === productId);
-    const variation = product.variations[variationIndex];
-    const variationRef = ref(db, `products/${productId}/variations/${variationIndex}`);
-    await update(variationRef, variation);
-    setEditableRow(null);
-  };
+    if (newQuantity !== undefined) {
+      const quantity = Number(newQuantity);
+      if (isNaN(quantity) || quantity < 0) {
+        alert('Please enter a valid quantity.');
+        return;
+      }
 
-  const handleDelete = async (productId, variationIndex) => {
-    const variationRef = ref(db, `products/${productId}/variations/${variationIndex}`);
-    await remove(variationRef);
-  };
+      const variationsRef = ref(db, `products/${productId}/variations`);
+      const snapshot = await get(variationsRef);
+      const variations = snapshot.val();
 
-  const handleChange = (productId, variationIndex, field, value) => {
-    setProducts(prevProducts => {
-      return prevProducts.map(product => {
-        if (product.id === productId) {
-          const variations = product.variations.map((variation, index) => {
-            if (index === variationIndex) {
-              return { ...variation, [field]: value };
+      if (variations) {
+        const variationToUpdate = variations.find(
+          (variation) => variation.productCode === variationCode
+        );
+        const variationIndex = variations.indexOf(variationToUpdate);
+        const previousStock = variationToUpdate.quantity;
+
+        if (quantity !== previousStock) {
+          const changeAmount = quantity - previousStock;
+          const changeType = changeAmount > 0 ? 'Added' : 'Sold';
+
+          const updates = {
+            [`${variationIndex}/quantity`]: quantity,
+          };
+
+          setUpdating(true);
+
+          const user = auth.currentUser;
+          let currentUserData = { firstName: 'Unknown', uid: 'Unknown' };
+          if (user) {
+            const userRef = ref(db, `users/${user.uid}`);
+            const userSnapshot = await get(userRef);
+            if (userSnapshot.exists()) {
+              currentUserData = userSnapshot.val();
             }
-            return variation;
-          });
-          return { ...product, variations };
+          }
+
+          await update(variationsRef, updates);
+          alert('Quantity updated successfully!');
+
+          const stockChangeRef = ref(db, `stockChanges/${productId}`);
+          const changeLog = {
+            variationCode,
+            productName: variationToUpdate.productName,
+            currentStock: quantity,
+            previousStock,
+            quantityChanged: Math.abs(changeAmount),
+            changeDate: new Date().toISOString(),
+            changeType,
+            firstName: currentUserData.firstName || 'Unknown',
+          };
+
+          // Check for duplicates before pushing to Firebase and updating local state
+          const isDuplicate = stockChangeHistory.some(
+            (change) =>
+              change.variationCode === variationCode &&
+              change.currentStock === quantity &&
+              change.previousStock === previousStock &&
+              change.changeType === changeType &&
+              new Date(change.changeDate).toISOString() === changeLog.changeDate
+          );
+
+          if (!isDuplicate) {
+            await push(stockChangeRef, changeLog);
+            setStockChangeHistory((prev) => [...prev, changeLog]);
+          } else {
+            alert('This change has already been logged.');
+          }
+
+          // Fetch updated stock change history
+          const updatedStockChanges = await get(stockChangeRef);
+          const updatedStockChangeHistory = updatedStockChanges.val()
+            ? Object.entries(updatedStockChanges.val()).map(([key, value]) => ({
+                id: key,
+                ...value,
+              }))
+            : [];
+          setStockChangeHistory(updatedStockChangeHistory);
+
+          setEditMode((prev) => ({ ...prev, [uniqueKey]: false }));
+          setUpdating(false);
+        } else {
+          alert('No changes to update.');
         }
-        return product;
+      }
+    }
+  };
+
+  const toggleEditMode = (productId, variationCode, currentQuantity) => {
+    const uniqueKey = `${productId}-${variationCode}`;
+    // Ensure one editable row per variation
+    setEditMode((prev) => {
+      const newEditMode = {};
+      Object.keys(prev).forEach((key) => {
+        newEditMode[key] = false; // Reset all edit modes
       });
+      newEditMode[uniqueKey] = !prev[uniqueKey]; // Toggle the selected one
+      return newEditMode;
     });
+
+    // Set the current quantity for the selected variation
+    if (!editMode[uniqueKey]) {
+      setQuantities((prev) => ({ ...prev, [uniqueKey]: currentQuantity }));
+    }
   };
 
   return (
@@ -91,16 +200,18 @@ const Inventorylist = () => {
       <Link to="/inventory" className={styles.logo}>
         <img src={image} alt="Logo" />
       </Link>
-      <div className={`${styles.div2} ${isCollapsed ? styles.hidden : styles.visible}`}>
+      <div
+        className={`${styles.div2} ${isCollapsed ? styles.hidden : styles.visible}`}
+      >
         <div className={styles.buttonContainer}>
-          <Link to="/inventory" className={styles.button1}><FontAwesomeIcon icon={faClipboardList} /> Inventory</Link>
-          <Link to="/order" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> Order</Link>
-          <Link to="/supplier" className={styles.button3}><FontAwesomeIcon icon={faIndustry} /> Supplier</Link>
+          <Link to="/inventory" className={styles.button1}>
+            <FontAwesomeIcon icon={faClipboardList} /> Inventory
+          </Link>
+          <Link to="/order" className={styles.button2}>
+            <FontAwesomeIcon icon={faShoppingCart} /> Order
+          </Link>
         </div>
-        
-      
         <div className={styles.buttonRow}>
-            
           <div className={styles.buttonProfile}>
             <FontAwesomeIcon icon={faUser} />
           </div>
@@ -114,136 +225,147 @@ const Inventorylist = () => {
           <FontAwesomeIcon icon={faBars} />
         </button>
         <div className={styles.contentTop}>
-          <Link to="/inventory" className={styles.navButton1}>Inventory</Link>
-          <Link to="/inventorylist" className={styles.navButton2}>Inventory List</Link>
+          <Link to="/inventory" className={styles.navButton1}>
+            Inventory
+          </Link>
+          <Link to="/inventorylist" className={styles.navButton2}>
+            Inventory List
+          </Link>
         </div>
         <div className={styles.contentBottom}>
+          <h2>Change Quantity</h2>
           <table className={styles.productTable}>
             <thead>
               <tr>
+                <th>Date Added</th>
                 <th>Category</th>
                 <th>Image</th>
-                <th>Name</th>
-                <th>Code</th>
-                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Product Code</th>
                 <th>Dimension</th>
-                <th>Price</th>
                 <th>Weight</th>
-                <th>Quantity</th>
+                <th>Current Stocks</th>
+                <th>Price</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {products.length > 0 ? (
-                products.flatMap((product) =>
-                  product.variations.map((variation, index) => (
-                    <tr key={`${product.id}-${index}`}>
+              {products.map((product) => {
+                const variations = product.variations;
+                const rowCount = variations.length;
+
+                return variations.map((variation, index) => {
+                  const uniqueKey = `${product.id}-${variation.productCode}`;
+                  return (
+                    <tr key={uniqueKey}>
+                      {/* Merge cells for the same category */}
                       {index === 0 && (
                         <>
-                          <td rowSpan={product.variations.length}>{product.productCategory}</td>
-                          <td rowSpan={product.variations.length}>
+                          <td rowSpan={rowCount}>
+                            {new Date(product.dateAdded).toLocaleDateString()}
+                          </td>
+                          <td rowSpan={rowCount}>{product.productCategory}</td>
+                          <td rowSpan={rowCount}>
                             {product.imageUrl ? (
-                              <img src={product.imageUrl} alt={product.productName} className={styles.productImage} />
+                              <img
+                                src={product.imageUrl}
+                                alt={product.productCategory}
+                                className={styles.productImage}
+                              />
                             ) : (
                               'No Image'
                             )}
                           </td>
                         </>
                       )}
-                      {editableRow?.productId === product.id && editableRow.variationIndex === index ? (
-                        <>
-                          <td>
-                            <input
-                              type="text"
-                              value={variation.productName}
-                              onChange={(e) => handleChange(product.id, index, 'productName', e.target.value)}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="text"
-                              value={variation.productCode}
-                              onChange={(e) => handleChange(product.id, index, 'productCode', e.target.value)}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="text"
-                              value={variation.productId}
-                              onChange={(e) => handleChange(product.id, index, 'productId', e.target.value)}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="text"
-                              value={variation.productDimension}
-                              onChange={(e) => handleChange(product.id, index, 'productDimension', e.target.value)}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              value={variation.productPrice}
-                              onChange={(e) => handleChange(product.id, index, 'productPrice', e.target.value)}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="text"
-                              value={variation.productWeight}
-                              onChange={(e) => handleChange(product.id, index, 'productWeight', e.target.value)}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              value={variation.quantity}
-                              onChange={(e) => handleChange(product.id, index, 'quantity', e.target.value)}
-                            />
-                          </td>
-                          <td>
-                            <button className={styles.iconButton} onClick={() => handleSave(product.id, index)}><FontAwesomeIcon icon={faSave} /></button>
-                            <button className={styles.iconButton} onClick={() => setEditableRow(null)}><FontAwesomeIcon icon={faCancel} /></button>
-                            
-                          </td>
-                        </>
-                      ) : (
-                        <>
-                          <td>{variation.productName}</td>
-                          <td>{variation.productCode}</td>
-                          <td>{variation.productId}</td>
-                          <td>{variation.productDimension}</td>
-                          <td>₱{variation.productPrice}</td>
-                          <td>{variation.productWeight} kg</td>
-                          <td>{variation.quantity}</td>
-                          <td>
-                        <button className={styles.iconButton} onClick={() => handleEditClick(product.id, index)}>
-                            <FontAwesomeIcon icon={faEdit} />
-                        </button>
-                        <button className={styles.iconButton} onClick={() => handleDelete(product.id, index)}>
-                            <FontAwesomeIcon icon={faTrash} />
-                        </button>
-                        </td>
-                        </>
-                      )}
+                      <td>{variation.productName}</td>
+                      <td>{variation.productCode}</td>
+                      <td>{variation.productDimension}</td>
+                      <td>{variation.productWeight}</td>
+                      <td>
+                        {editMode[uniqueKey] ? (
+                          <input
+                            type="number"
+                            value={quantities[uniqueKey] || variation.quantity}
+                            onChange={(e) =>
+                              setQuantities((prev) => ({
+                                ...prev,
+                                [uniqueKey]: e.target.value,
+                              }))
+                            }
+                          />
+                        ) : (
+                          <span>{variation.quantity}</span>
+                        )}
+                      </td>
+                      <td>{new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(variation.productPrice)}</td>
+                      <td>
+                        {editMode[uniqueKey] ? (
+                          <button
+                            onClick={() =>
+                              handleUpdateQuantity(product.id, variation.productCode)
+                            }
+                            disabled={updating}
+                          >
+                            {updating ? 'Saving...' : 'Save'}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              toggleEditMode(
+                                product.id,
+                                variation.productCode,
+                                variation.quantity
+                              )
+                            }
+                          >
+                            Edit
+                          </button>
+                        )}
+                      </td>
                     </tr>
-                  ))
-                )
-              ) : (
-                <tr>
-                  <td colSpan="10">No products found</td>
+                  );
+                });
+              })}
+            </tbody>
+          </table>
+
+          <h2>Stock Change History</h2>
+          <table className={styles.productTable}>
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Current Stock</th>
+                <th>Previous Stock</th>
+                <th>Quantity Changed</th>
+                <th>Change Date</th>
+                <th>Modification</th>
+                <th>User Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stockChangeHistory.map((change, index) => (
+                <tr key={`${change.productId}-${index}`}>
+                  <td>{change.productName}</td>
+                  <td>{change.currentStock}</td>
+                  <td>{change.previousStock}</td>
+                  <td>{change.quantityChanged}</td>
+                  <td>{new Date(change.changeDate).toLocaleString()}</td>
+                  <td>{change.changeType}</td>
+                  <td>{change.firstName}</td>
                 </tr>
-              )}
+              ))}
             </tbody>
           </table>
         </div>
       </div>
       <div className={styles.searchbar}>
         {currentUser && (
-        <div className={styles.userInfo}>
-          <p>Welcome, {currentUser.firstName}</p>
-        </div>
-      )}</div>
+          <div className={styles.userInfo}>
+            <p>Welcome, {currentUser.firstName}</p>
+          </div>
+        )}
+      </div>
       <div className={styles.pagename}>| Inventory List</div>
     </div>
   );

@@ -1,16 +1,48 @@
 .dateRangeContainer {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap; /* Allows filters to wrap to the next line */
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 10px; /* Adds space between elements */
+  width: 100%; /* Makes sure the container spans the full width */
+  justify-content: flex-start; /* Align items to the left */
+  padding: 10px; /* Adds a little padding */
+  box-sizing: border-box; /* Ensure padding doesn’t affect the width */
+}
+
+.dateRangeContainer label {
+  font-size: 0.9rem; /* Slightly smaller font size for labels */
+  flex-shrink: 0; /* Prevent the label from shrinking */
+}
+
+.dateRangeContainer input,
+.dateRangeContainer select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  min-width: 120px; /* Adjust minimum width for better fit */
+  flex-grow: 1; /* Allows the input/select to grow */
+  box-sizing: border-box;
+  font-size: 0.9rem; /* Slightly smaller font size for inputs/selects */
+}
+
+@media (max-width: 768px) {
+  .dateRangeContainer {
+    justify-content: flex-start; /* Keep it left-aligned on small screens */
   }
-  
-  .dateRangeContainer label {
-    margin-right: 10px;
+
+  .dateRangeContainer input,
+  .dateRangeContainer select {
+    flex-grow: 0; /* Prevent growing too big on smaller screens */
+    min-width: 100px; /* Adjust minimum width for mobile */
+    font-size: 0.8rem; /* Even smaller font size for better fit */
   }
-  
-  .dateRangeContainer input {
-    margin-right: 10px;
-  }
+}
+
+/* Other styles remain unchanged */
+
+
+ 
   .parent {
     display: grid;
     grid-template-columns: repeat(10, 10%);

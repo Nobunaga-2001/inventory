@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './Inventory.module.css';
 import image from '../images/logo.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faClipboardList, faIndustry, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faClipboardList, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import { faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
@@ -217,7 +217,6 @@ const Inventory = () => {
         <div className={styles.buttonContainer}>
           <Link to="/inventory" className={styles.button1}><FontAwesomeIcon icon={faClipboardList} /> Inventory</Link>
           <Link to="/order" className={styles.button2}><FontAwesomeIcon icon={faShoppingCart} /> Order</Link>
-          <Link to="/supplier" className={styles.button3}><FontAwesomeIcon icon={faIndustry} /> Supplier</Link>
         </div>
 
         <div className={styles.buttonRow}>

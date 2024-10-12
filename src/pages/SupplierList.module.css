@@ -227,6 +227,7 @@
 }
 
 .pagename {
-  text-align: center;
-  margin-top: 20px;
+  grid-area: 2 / 3 / 2 / 12;
+  background-color: #ffffff;
+  font-size: 3rem;
 }

@@ -19,6 +19,8 @@ import Landingpage from './pages/Landingpage';
 import History from './pages/History';
 import Practice from './pages/Practice';
 import Userlist from './pages/Userlist';
+import AdminInventory from './pages/AdminInventory';
+import AdminInvent from './pages/AdminInvent';
 
 
 
@@ -43,6 +45,9 @@ function App() {
       <Route path="/history" element={<History/>} />
       <Route path="/prac" element={<Practice/>} />
       <Route path="/userlist" element={<Userlist/>} />
+      <Route path="/admininvent" element={<AdminInvent/>} />
+      <Route path="/admininventory" element={<AdminInventory/>} />
+      
       </Routes>
     </Router>
   );
