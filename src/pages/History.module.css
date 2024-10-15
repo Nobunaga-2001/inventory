@@ -100,7 +100,7 @@
 
 .content {
   grid-area: 3 / 3 / 11 / 11;
-  background-color: #a30000;
+  background-color: #ffffff;
   position: relative;
   transition: width 3.0s ease;
 }
@@ -176,7 +176,7 @@
 
 .div4 {
   grid-area: 1 / 3 / 3 / 11;
-  background-color: #D0021B;
+  background-color: #ffffff;
 }
 
 .searchbar {

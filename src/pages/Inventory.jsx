@@ -6,7 +6,7 @@ import { faBars, faClipboardList, faShoppingCart } from '@fortawesome/free-solid
 import { faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
-import Modal from './Modal';
+import Modal from './ModalEmp';
 import { ref, get, update, push, set } from 'firebase/database';
 import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
@@ -20,12 +20,17 @@ const Inventory = () => {
     imageFile: null,
     variations: [{
       productName: '',
-      productDimension: '',
-      productWeight: '',
+      productDimension: '', // Will store as "LxWxH (metric)" or other variations
+      productWeight: '', // Will store as "Weight (unit)"
       productPrice: '',
       quantity: '',
       productCode: '',
       productId: '',
+      length: '', // For input handling
+      width: '', // For input handling
+      height: '', // For input handling
+      dimensionUnit: 'cm', // Default unit for dimensions
+      weightUnit: 'g', // Default unit for weight
     }],
   });
   const [successMessage, setSuccessMessage] = useState('');
@@ -60,7 +65,6 @@ const Inventory = () => {
       }
       await auth.signOut();
       navigate('/');
-      //navigate('/login');
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -111,6 +115,11 @@ const Inventory = () => {
         quantity: '',
         productCode: '',
         productId: '',
+        length: '',
+        width: '',
+        height: '',
+        dimensionUnit: 'cm',
+        weightUnit: 'g',
       }],
     }));
   };
@@ -152,6 +161,19 @@ const Inventory = () => {
     const currentDate = new Date().toLocaleDateString('en-US');
     let imageUrl = formData.imageUrl;
 
+    // Process dimensions and save in the correct format (LxWxH (metric))
+    formData.variations.forEach(variation => {
+      const { length, width, height, dimensionUnit } = variation;
+      
+      // Only include non-empty dimensions
+      const dimensions = [length, width, height].filter(dim => dim !== '').join('x');
+      const dimensionString = `${dimensions} ${dimensionUnit}`.trim(); // "LxWxH (unit)" or "LxW (unit)" or "L (unit)"
+      variation.productDimension = dimensionString; // Save correctly formatted dimension
+      
+      // Process weight similarly
+      variation.productWeight = `${variation.productWeight} ${variation.weightUnit}`;
+    });
+
     if (formData.imageFile) {
       try {
         imageUrl = await uploadImage(formData.imageFile);
@@ -185,6 +207,11 @@ const Inventory = () => {
           quantity: '',
           productCode: '',
           productId: '',
+          length: '',
+          width: '',
+          height: '',
+          dimensionUnit: 'cm',
+          weightUnit: 'g',
         }],
       });
       setPreviewUrl('');
@@ -229,11 +256,11 @@ const Inventory = () => {
         </div>
       </div>
       <div className={styles.searchbar}>
-      {currentUser && (
-        <div className={styles.userInfo}>
-          <p>Welcome, {currentUser.firstName}</p>
-        </div>
-      )}
+        {currentUser && (
+          <div className={styles.userInfo}>
+            <p>Welcome, {currentUser.firstName}</p>
+          </div>
+        )}
       </div>
       <div className={styles.pagename}>| Inventory</div>
       <div className={`${styles.content} ${isCollapsed ? styles.fullWidth : ''}`}>
@@ -247,7 +274,7 @@ const Inventory = () => {
         <div className={styles.contentBottom}>
           <form onSubmit={handleSubmit} className={styles.productForm}>
             <label>
-                <h1>CATEGORY</h1> 
+              <h1>CATEGORY</h1> 
               <input
                 type="text"
                 name="productCategory"
@@ -257,103 +284,137 @@ const Inventory = () => {
               />
             </label>
             <div className={styles.imageUploadContainer}>
-    <label>
-        Upload Image:
-        <div className={styles.imageUploadContent}>
-            <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className={styles.fileInput}
-            />
-            {previewUrl && (
-                <div className={styles.imagePreview}>
-                    <img src={previewUrl} alt="Preview" className={styles.previewImage} />
-                </div>
-                        )}
+              <label>
+                Upload Image:
+                <div className={styles.imageUploadContent}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className={styles.fileInput}
+                  />
+                  {previewUrl && (
+                    <div className={styles.imagePreview}>
+                      <img src={previewUrl} alt="Preview" className={styles.previewImage} />
                     </div>
-                </label>
+                  )}
+                </div>
+              </label>
             </div>
+
             {formData.variations.map((variation, index) => (
-           <div className={styles.variationGroup}>
-    
-           <div className={styles.variationInputs}>
-               <label className={styles.nameInput}>
-                   Name:
-                   <input
-                       type="text"
-                       name="productName"
-                       value={variation.productName}
-                       onChange={(e) => handleVariationChange(index, e)}
-                       required
-                   />
-               </label>
-               <label>
-                   Dimension:
-                   <input
-                       type="text"
-                       name="productDimension"
-                       value={variation.productDimension}
-                       onChange={(e) => handleVariationChange(index, e)}
-                       required
-                   />
-               </label>
-               <label>
-                   Weight:
-                   <input
-                       type="text"
-                       name="productWeight"
-                       value={variation.productWeight}
-                       onChange={(e) => handleVariationChange(index, e)}
-                       required
-                   />
-               </label>
-               <label>
-                   Price:
-                   <input
-                       type="number"
-                       name="productPrice"
-                       value={variation.productPrice}
-                       onChange={(e) => handleVariationChange(index, e)}
-                       required
-                   />
-               </label>
-               <label>
-                   Quantity:
-                   <input
-                       type="number"
-                       name="quantity"
-                       value={variation.quantity}
-                       onChange={(e) => handleVariationChange(index, e)}
-                       required
-                   />
-               </label>
-               <label>
-                   Code:
-                   <input
-                       type="text"
-                       name="productCode"
-                       value={variation.productCode}
-                       onChange={(e) => handleVariationChange(index, e)}
-                       required
-                   />
-               </label>
-               <label>
-                   ID:
-                   <input
-                       type="text"
-                       name="productId"
-                       value={variation.productId}
-                       onChange={(e) => handleVariationChange(index, e)}
-                       required
-                   />
-               </label>
-           </div>
-           <button type="button" onClick={() => removeVariation(index)}>Remove Variation</button>
-       </div>
-       
-    
-        ))}
+              <div className={styles.variationGroup} key={index}>
+                <div className={styles.variationInputs}>
+                  <label className={styles.nameInput}>
+                    Name:
+                    <input
+                      type="text"
+                      name="productName"
+                      value={variation.productName}
+                      onChange={(e) => handleVariationChange(index, e)}
+                      required
+                    />
+                  </label>
+                  <label>
+                    Length:
+                    <input
+                      type="number"
+                      name="length"
+                      value={variation.length}
+                      onChange={(e) => handleVariationChange(index, e)}
+                    />
+                    <select
+                      name="dimensionUnit"
+                      value={variation.dimensionUnit}
+                      onChange={(e) => handleVariationChange(index, e)}
+                    >
+                      <option value="cm">cm</option>
+                      <option value="m">m</option>
+                      <option value="in">in</option>
+                      <option value="ft">ft</option>
+                    </select>
+                  </label>
+                  <label>
+                    Width:
+                    <input
+                      type="number"
+                      name="width"
+                      value={variation.width}
+                      onChange={(e) => handleVariationChange(index, e)}
+                    />
+                  </label>
+                  <label>
+                    Height:
+                    <input
+                      type="number"
+                      name="height"
+                      value={variation.height}
+                      onChange={(e) => handleVariationChange(index, e)}
+                    />
+                  </label>
+                  <label>
+                    Weight:
+                    <input
+                      type="number"
+                      name="productWeight"
+                      value={variation.productWeight}
+                      onChange={(e) => handleVariationChange(index, e)}
+                      required
+                    />
+                    <select
+                      name="weightUnit"
+                      value={variation.weightUnit}
+                      onChange={(e) => handleVariationChange(index, e)}
+                    >
+                      <option value="g">g</option>
+                      <option value="kg">kg</option>
+                      <option value="lb">lb</option>
+                    </select>
+                  </label>
+                  <label>
+                    Price:
+                    <input
+                      type="number"
+                      name="productPrice"
+                      value={variation.productPrice}
+                      onChange={(e) => handleVariationChange(index, e)}
+                      required
+                    />
+                  </label>
+                  <label>
+                    Quantity:
+                    <input
+                      type="number"
+                      name="quantity"
+                      value={variation.quantity}
+                      onChange={(e) => handleVariationChange(index, e)}
+                      required
+                    />
+                  </label>
+                  <label>
+                    Code:
+                    <input
+                      type="text"
+                      name="productCode"
+                      value={variation.productCode}
+                      onChange={(e) => handleVariationChange(index, e)}
+                      required
+                    />
+                  </label>
+                  <label>
+                    ID:
+                    <input
+                      type="text"
+                      name="productId"
+                      value={variation.productId}
+                      onChange={(e) => handleVariationChange(index, e)}
+                      required
+                    />
+                  </label>
+                </div>
+                <button type="button" onClick={() => removeVariation(index)}>Remove Variation</button>
+              </div>
+            ))}
             <button type="button" onClick={addVariation}>Add Variation</button>
             <button type="submit">Submit</button>
             {successMessage && <div className={styles.successMessage}>{successMessage}</div>}

@@ -5,8 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faClipboardList, faShoppingCart, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom'; 
 import { auth, db } from '../firebase';
-import Modal from './Modal';
-import { ref, get, onValue, update } from 'firebase/database';
+import Modal from './ModalEmp';
+import { ref, get, onValue, update, push } from 'firebase/database';
 
 const predefinedPaymentReasons = [
   'Refund',
@@ -72,33 +72,139 @@ const OrderList = () => {
     setSelectedOrder(null);
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    if (newStatus === 'Delivered') {
-      const selectedOrderPayment = orders.find(order => order.id === id)?.payment;
-
-      if (selectedOrderPayment !== 'Paid') {
-        alert('Cannot change status to Delivered unless payment is Paid.');
-        return;
+  const handleStatusClick = (orderId, currentStatus) => {
+    if (currentStatus === 'Pending') {
+      if (window.confirm('Are you sure you want to mark this order as Shipped?')) {
+        updateOrderStatus(orderId, 'Shipped');
       }
     }
-
-    const orderRef = ref(db, `orders/${id}`);
-    update(orderRef, { status: newStatus });
   };
 
-  const handlePaymentChange = (id, newPayment) => {
-    const orderRef = ref(db, `orders/${id}`);
-    update(orderRef, { payment: newPayment });
+  const handleDeliveredClick = (orderId, paymentStatus) => {
+    // Check if the payment status is "Paid" before allowing delivery
+    if (paymentStatus !== 'Paid') {
+      alert('The payment must be marked as Paid before delivering the order.');
+      return; // Exit the function if payment is not "Paid"
+    }
+  
+    if (window.confirm('Are you sure you want to mark this order as Delivered?')) {
+      updateOrderStatus(orderId, 'Delivered');
+    }
+  };
+  
 
+  const handleCancelClick = async (orderId) => {
+    if (window.confirm('Are you sure you want to cancel this order?')) {
+      const order = orders.find((order) => order.id === orderId);
+      if (order) {
+        await returnStockToInventory(order.items);
+        await updateOrderStatus(orderId, 'Cancelled');
+      }
+    }
+  };
+
+  const returnStockToInventory = async (orderItems) => {
+    for (const itemId in orderItems) {
+      const item = orderItems[itemId];
+  
+      // Fetch all products and search for the correct one based on productName
+      const productRef = ref(db, 'products');
+      const snapshot = await get(productRef);
+      const products = snapshot.val();
+  
+      if (products) {
+        let productFound = false;
+  
+        // Iterate over all products
+        for (const productId in products) {
+          const product = products[productId];
+          const variations = product.variations;
+  
+          // Convert variations to an array if it's an object
+          const variationsArray = Array.isArray(variations) ? variations : Object.values(variations);
+  
+          // Find the correct variation by productName
+          const variationToUpdate = variationsArray.find(
+            (variation) => variation.productName === item.productName
+          );
+  
+          if (variationToUpdate) {
+            productFound = true;
+            const variationIndex = variationsArray.indexOf(variationToUpdate);
+            const previousStock = Number(variationToUpdate.quantity);  // Ensure it's a number
+            const orderQuantity = Number(item.orderQuantity);          // Ensure it's a number
+            const newStock = previousStock + orderQuantity;
+  
+            // Update the stock in Firebase
+            const updates = {
+              [`variations/${variationIndex}/quantity`]: newStock,
+            };
+            const variationRef = ref(db, `products/${productId}`);
+            await update(variationRef, updates);
+  
+            // Log the stock change
+            await logStockChange(variationToUpdate, orderQuantity, previousStock, newStock, productId);
+            break; // Exit the loop once we find and update the variation
+          }
+        }
+  
+        if (!productFound) {
+          console.error(`Product with name ${item.productName} not found.`);
+        }
+      }
+    }
+  };
+  
+
+  const logStockChange = async (variation, orderQuantity, previousStock, newStock, productId) => {
+    const changeAmount = newStock - previousStock;
+    const changeType = 'Stock Cancellation Return';
+
+    const stockChangeRef = ref(db, `stockChanges/${productId}`);
+    const changeLog = {
+      variationCode: variation.productCode,
+      productName: variation.productName,
+      currentStock: newStock,
+      previousStock,
+      quantityChanged: Math.abs(changeAmount),
+      changeDate: new Date().toISOString(),
+      changeType,
+      firstName: currentUser?.firstName || 'Unknown',
+    };
+
+    await push(stockChangeRef, changeLog);
+  };
+
+  const updateOrderStatus = (orderId, newStatus) => {
+    const orderRef = ref(db, `orders/${orderId}`);
+    update(orderRef, { status: newStatus })
+      .then(() => alert(`Order status updated to ${newStatus}`))
+      .catch((error) => alert('Failed to update status: ' + error.message));
+  };
+
+  const handlePaymentChange = async (id, newPayment) => {
+    const orderRef = ref(db, `orders/${id}`);
+  
+    // Update payment status in the database
+    await update(orderRef, { payment: newPayment });
+  
+    // Automatically mark order as "Delivered" if payment status is "Paid"
+    if (newPayment === 'Paid') {
+      await update(orderRef, { status: 'Delivered' })
+        .then(() => {
+          alert('Payment status updated to Paid, and order marked as Delivered!');
+        })
+        .catch((error) => {
+          alert('Failed to update status: ' + error.message);
+        });
+    } else {
+      alert('Payment status updated successfully!');
+    }
+  
+    // Clear the payment reason after change
     setPaymentReason((prev) => ({ ...prev, [id]: '' }));
   };
-
-  const handlePaymentTypeChange = (id, newPaymentType) => {
-    const orderRef = ref(db, `orders/${id}`);
-    update(orderRef, { paymentType: newPaymentType });
-
-    setPaymentReason((prev) => ({ ...prev, [id]: '' }));
-  };
+  
 
   const handlePaymentReasonChange = (id, reason) => {
     setPaymentReason((prev) => ({ ...prev, [id]: reason }));
@@ -107,13 +213,13 @@ const OrderList = () => {
   const handleSavePaymentReason = (id) => {
     const orderRef = ref(db, `orders/${id}`);
     update(orderRef, { paymentReason: paymentReason[id] });
-    
+
     alert('Payment reason saved successfully!');
     setPaymentReason((prev) => ({ ...prev, [id]: paymentReason[id] }));
   };
 
-  const filteredOrders = orders.filter(order => order.status !== 'Delivered');
-
+  const filteredOrders = orders.filter(order => order.status !== 'Delivered' && order.status !== 'Cancelled');
+  
   return (
     <div className={styles.parent}>
       <Link to="/inventory" className={styles.logo}>
@@ -149,7 +255,6 @@ const OrderList = () => {
             <table className={styles.orderTable}>
               <thead>
                 <tr>
-                 
                   <th>Customer Name</th>
                   <th>Location</th>
                   <th>Email</th>
@@ -174,17 +279,15 @@ const OrderList = () => {
                       </td>
                       <td>
                         <select value={order.payment} onChange={(e) => handlePaymentChange(order.id, e.target.value)}>
-                          <option value="Unpaid">Unpaid</option>
+                          <option value="Pending">Pending</option>
                           <option value="Paid">Paid</option>
+                          <option value="Failed">Failed</option>
+                          <option value="Refunded">Refunded</option>
+                          <option value="Cancelled">Cancelled</option>
                         </select>
                       </td>
                       <td>
-                        <select value={order.paymentType || ''} onChange={(e) => handlePaymentTypeChange(order.id, e.target.value)}>
-                          <option value="">Select Payment Type</option>
-                          <option value="Cash">Cash</option>
-                          <option value="Credit Card">Credit Card</option>
-                          <option value="Online Transfer">Online Transfer</option>
-                        </select>
+                        <span>{order.paymentType || 'No Payment Type'}</span>
                       </td>
                       <td>
                         <select 
@@ -199,12 +302,25 @@ const OrderList = () => {
                         <button onClick={() => handleSavePaymentReason(order.id)}>Save</button>
                       </td>
                       <td>
-                        <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)}>
-                          <option value="Pending">Pending</option>
-                          <option value="In Progress">In Progress</option>
-                          <option value="Delivered">Delivered</option>
-                        </select>
-                      </td>
+                      {order.status === 'Pending' && (
+                        <button onClick={() => handleStatusClick(order.id, order.status)}>
+                          Pending
+                        </button>
+                      )}
+                      {order.status === 'Shipped' && (
+                        <div>
+                          <p>Status: Shipped</p>
+                          <button onClick={() => handleDeliveredClick(order.id, order.payment)}>
+                            Delivered
+                          </button>
+                          <button onClick={() => handleCancelClick(order.id)}>
+                            Cancel
+                          </button>
+                        </div>
+                      )}
+                      {order.status === 'Delivered' && <p>Status: Delivered</p>}
+                      {order.status === 'Cancelled' && <p>Status: Cancelled</p>}
+                    </td>
                     </tr>
                   ))
                 ) : (
@@ -220,16 +336,37 @@ const OrderList = () => {
 
       {showOrderDetails && selectedOrder && (
         <div className={styles.orderDetails}>
-          <h3>Order Details</h3>
-          {Object.keys(selectedOrder.items || {}).map((key) => {
-            const item = selectedOrder.items[key];
-            const totalPrice = Number(item.totalPrice) || 0;
-            return (
-              <div key={key}>
-                {item.productName} - {item.orderQuantity} - ₱{totalPrice ? totalPrice.toFixed(2) : '0.00'}
-              </div>
-            );
-          })}
+          <h3>Order Receipt</h3>
+          <table className={styles.receiptTable}>
+            <thead>
+              <tr>
+                <th>Quantity</th>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.keys(selectedOrder.items || {}).map((key) => {
+                const item = selectedOrder.items[key];
+                const totalPrice = Number(item.totalPrice) || 0;
+                return (
+                  <tr key={key}>
+                    <td>{item.orderQuantity}</td>
+                    <td>{item.productName}</td>
+                    <td>₱{Number(item.price).toLocaleString('en-PH', { style: 'decimal', minimumFractionDigits: 2 })}</td>
+                    <td>₱{totalPrice.toLocaleString('en-PH', { style: 'decimal', minimumFractionDigits: 2 })}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <div className={styles.receiptFooter}>
+            Gross Total: <span>₱{Object.keys(selectedOrder.items)
+              .reduce((total, key) => total + (Number(selectedOrder.items[key].totalPrice) || 0), 0)
+              .toLocaleString('en-PH', { style: 'decimal', minimumFractionDigits: 2 })}
+            </span>
+          </div>
           <button onClick={handleCloseDetails}>Close</button>
         </div>
       )}

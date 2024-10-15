@@ -81,7 +81,10 @@ const AdminInventory = () => {
           Object.entries(data).forEach(([productId, changes]) => {
             stockChangesList[productId] = {};
             Object.entries(changes).forEach(([changeId, change]) => {
-              stockChangesList[productId][change.variationCode] = change.currentStock; // Store current stock by variation code
+              stockChangesList[productId][change.variationCode] = {
+                currentStock: change.currentStock,
+                previousStock: change.previousStock
+              }; // Store current and previous stock by variation code
             });
           });
         }
@@ -266,8 +269,6 @@ const AdminInventory = () => {
           <FontAwesomeIcon icon={faBars} />
         </button>
         <div className={styles.contentBottom}>
-          {/* Integrated Tables from AdminInvent */}
-
           {/* Change Price Table */}
           <h2>Change Price</h2>
           <table className={styles.productTable}>
@@ -279,8 +280,8 @@ const AdminInventory = () => {
                 <th>Product Code</th>
                 <th>Dimension</th>
                 <th>Weight</th>
+                <th>Current Stock</th> {/* Added Current Stock Column */}
                 <th>Current Price</th>
-                <th>Stocks</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -289,59 +290,63 @@ const AdminInventory = () => {
                 const variations = product.variations;
                 const rowCount = variations.length;
 
-                return variations.map((variation, index) => (
-                  <tr key={`${product.id}-${variation.productCode}`}>
-                    {index === 0 && (
-                      <>
-                        <td rowSpan={rowCount}>{product.productCategory}</td>
-                        <td rowSpan={rowCount}>
-                          {product.imageUrl ? (
-                            <img src={product.imageUrl} alt={variation.productName} className={styles.image} />
-                          ) : (
-                            'No Image'
-                          )}
-                        </td>
-                      </>
-                    )}
-                    <td>{variation.productName}</td>
-                    <td>{variation.productCode}</td>
-                    <td>{variation.productDimension}</td>
-                    <td>{variation.productWeight}</td>
-                    <td>
-                      {editPriceMode[`${product.id}-${variation.productCode}`] ? (
-                        <input 
-                          type="number" 
-                          value={prices[`${product.id}-${variation.productCode}`] || variation.productPrice} 
-                          onChange={(e) => setPrices(prev => ({ ...prev, [`${product.id}-${variation.productCode}`]: e.target.value }))} 
-                        />
-                      ) : (
-                        <span>₱{variation.productPrice}</span>
-                      )}
-                    </td>
-                    <td>{variation.quantity}</td>
-                    <td>
-                      {editPriceMode[`${product.id}-${variation.productCode}`] ? (
+                return variations.map((variation, index) => {
+                
+                  return (
+                    <tr key={`${product.id}-${variation.productCode}`}>
+                      {index === 0 && (
                         <>
-                          <button onClick={() => handleUpdatePrice(product.id, variation.productCode)} disabled={updating}>
-                            {updating ? 'Saving...' : 'Save Price'}
-                          </button>
-                          <button onClick={() => toggleEditPriceMode(product.id, variation.productCode, variation.productPrice)}>
-                            Cancel
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button onClick={() => toggleEditPriceMode(product.id, variation.productCode, variation.productPrice)}>
-                            Edit Price
-                          </button>
-                          <button onClick={() => handleDeleteVariation(product.id, variation.productCode)}>
-                            <FontAwesomeIcon icon={faTrash} /> Delete
-                          </button>
+                          <td rowSpan={rowCount}>{product.productCategory}</td>
+                          <td rowSpan={rowCount}>
+                            {product.imageUrl ? (
+                              <img src={product.imageUrl} alt={variation.productName} className={styles.image} />
+                            ) : (
+                              'No Image'
+                            )}
+                          </td>
                         </>
                       )}
-                    </td>
-                  </tr>
-                ));
+                      <td>{variation.productName}</td>
+                      <td>{variation.productCode}</td>
+                      <td>{variation.productDimension}</td>
+                      <td>{variation.productWeight}</td>
+                      <td>{variation.quantity || 'N/A'}</td> {/* Display current stock */}
+                      <td>
+                        {editPriceMode[`${product.id}-${variation.productCode}`] ? (
+                          <input 
+                            type="number" 
+                            value={prices[`${product.id}-${variation.productCode}`] || variation.productPrice} 
+                            onChange={(e) => setPrices(prev => ({ ...prev, [`${product.id}-${variation.productCode}`]: e.target.value }))} 
+                          />
+                        ) : (
+                          <span>{`Php ${new Intl.NumberFormat('en-PH').format(variation.productPrice)}`}</span>
+                        )}
+                      </td>
+                     
+                      <td>
+                        {editPriceMode[`${product.id}-${variation.productCode}`] ? (
+                          <>
+                            <button onClick={() => handleUpdatePrice(product.id, variation.productCode)} disabled={updating}>
+                              {updating ? 'Saving...' : 'Save Price'}
+                            </button>
+                            <button onClick={() => toggleEditPriceMode(product.id, variation.productCode, variation.productPrice)}>
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button onClick={() => toggleEditPriceMode(product.id, variation.productCode, variation.productPrice)}>
+                              Edit Price
+                            </button>
+                            <button onClick={() => handleDeleteVariation(product.id, variation.productCode)}>
+                              <FontAwesomeIcon icon={faTrash} /> Delete
+                            </button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                });
               })}
             </tbody>
           </table>
@@ -362,8 +367,8 @@ const AdminInventory = () => {
               {priceChangeHistory.map((change, index) => (
                 <tr key={`${change.productId}-${index}`}>
                   <td>{change.productName}</td>
-                  <td>₱{change.currentPrice}</td>
-                  <td>₱{change.previousPrice}</td>
+                  <td>{`Php ${new Intl.NumberFormat('en-PH').format(change.currentPrice)}`}</td>
+                  <td>{`Php ${new Intl.NumberFormat('en-PH').format(change.previousPrice)}`}</td>
                   <td>{new Date(change.changeDate).toLocaleString()}</td>
                   <td>{change.firstName}</td>
                 </tr>

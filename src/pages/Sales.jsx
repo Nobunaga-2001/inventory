@@ -185,21 +185,41 @@ const Sales = () => {
       </div>
 
       {showOrderDetails && selectedOrder && (
-        <div className={styles.orderDetails}>
-          <h3>Order Details</h3>
-          {Object.keys(selectedOrder.items).map((key) => {
-            const item = selectedOrder.items[key];
-            const totalPrice = Number(item.totalPrice) || 0;
-            return (
-              <div key={key}>
-                {item.productName} - {item.orderQuantity} - ₱{totalPrice.toFixed(2)}
-              </div>
-            );
-          })}
-          <h4>Gross Total: ₱{(Object.keys(selectedOrder.items).reduce((total, key) => total + (Number(selectedOrder.items[key].totalPrice) || 0), 0)).toFixed(2)}</h4>
-          <button onClick={handleCloseDetails}>Close</button>
-        </div>
-      )}
+  <div className={styles.orderDetails}>
+    <h3>Order Receipt</h3>
+    <table className={styles.receiptTable}>
+      <thead>
+        <tr>
+          <th>Quantity</th>
+          <th>Product Name</th>
+          <th>Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {Object.keys(selectedOrder.items).map((key) => {
+          const item = selectedOrder.items[key];
+          const totalPrice = Number(item.totalPrice) || 0;
+          return (
+            <tr key={key}>
+              <td>{item.orderQuantity}</td>
+              <td>{item.productName}</td>
+              <td>₱{Number(item.price).toLocaleString('en-PH', { style: 'decimal', minimumFractionDigits: 2 })}</td>
+              <td>₱{totalPrice.toLocaleString('en-PH', { style: 'decimal', minimumFractionDigits: 2 })}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+    <div className={styles.receiptFooter}>
+      Gross Total: <span>₱{Object.keys(selectedOrder.items)
+        .reduce((total, key) => total + (Number(selectedOrder.items[key].totalPrice) || 0), 0)
+        .toLocaleString('en-PH', { style: 'decimal', minimumFractionDigits: 2 })}</span>
+    </div>
+    <button onClick={handleCloseDetails}>Close</button>
+  </div>
+)}
+
 
       {showModal && <Modal onClose={() => setShowModal(false)} />}
       {showFilterModal && (

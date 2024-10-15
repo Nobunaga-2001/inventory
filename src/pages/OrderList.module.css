@@ -350,3 +350,75 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+/* Receipt Style */
+.orderDetails {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  width: 320px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.orderDetails h3 {
+  margin-top: 0;
+  text-align: center;
+  font-weight: bold;
+  border-bottom: 1px dashed #333;
+  padding-bottom: 10px;
+}
+
+/* Receipt Table */
+.receiptTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+.receiptTable th, .receiptTable td {
+  padding: 8px;
+  text-align: left;
+}
+
+.receiptTable th {
+  text-align: left;
+  border-bottom: 1px solid #333;
+}
+
+.receiptTable td {
+  border-bottom: 1px dashed #333;
+}
+
+/* Gross Total Section */
+.receiptFooter {
+  text-align: right;
+  font-weight: bold;
+  margin-top: 15px;
+  font-size: 1rem;
+}
+
+.receiptFooter span {
+  font-size: 1.2rem;
+}
+
+/* Close Button */
+.orderDetails button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 10px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.orderDetails button:hover {
+  background-color: #0056b3;
+}

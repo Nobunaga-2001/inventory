@@ -1,409 +1,378 @@
 .parent {
-    display: grid;
-    grid-template-columns: repeat(10, 10%);
-    grid-template-rows: repeat(10, 10%);
-    gap: 0;
-    height: 100vh;
-  }
+  display: grid;
+  grid-template-columns: repeat(10, 10%);
+  grid-template-rows: repeat(10, 10%);
+  gap: 0;
+  height: 100vh;
+}
 
-  
-  .logo {
-    grid-area: 1 / 1 / 3 / 3;
-    background-color: #05bb3300;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .logo img {
-    max-width: 80%; /* Ensures the image fits within the div */
-    height: auto;    /* Maintains aspect ratio */
-  }
-  
-  .div2 {
-    grid-area: 3 / 1 / 11 / 3;
-    background-color: #ffffff00;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    transition: width 0.5s ease;
-  }
-  
-  .visible {
-    width: 100%;
-  }
-  
-  .hidden {
-    width: 20;
-    overflow:hidden;
-  }
-  
-  .buttonContainer {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-  }
-  
-  .button1, .button2, .button3, .button4 {
-    margin: 10px 0;
-    padding: 10px 20px;
-    background-color: rgb(48, 34, 182);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    height: 35px;
-    width: 170px;
-    font-size: 1.5rem;
-    text-decoration: none;
-  }
-  
-  .button1:hover, .button2:hover, .button3:hover, .button4:hover {
-    background-color: #3c6421;
-  }
-  .buttonRow {
-    display: flex;
-    justify-content: center; /* Center the buttons */
-    width: 100%;
-    padding: 10px 0;
-  }
-  
-  .buttonProfile, .buttonLogout {
-    margin: 0 5px; /* Add a small margin for spacing */
-    padding: 0; /* Reset padding */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    height: 40px; /* Make it square */
-    width: 40px;  /* Make it square */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5rem;
-  }
-  .buttonProfile{
-    background-color: rgb(48, 34, 182);
-  }
+.logo {
+  grid-area: 1 / 1 / 3 / 3;
+  background-color: #05bb3300;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-  .buttonLogout{
-    background-color: #2d742d;
-  }
-  
-  .buttonProfile:hover, .buttonLogout:hover {
-    background-color: #A90016;
-  }
+.logo img {
+  max-width: 80%; /* Ensures the image fits within the div */
+  height: auto;    /* Maintains aspect ratio */
+}
 
-  .content {
-    grid-area: 3 / 3 / 11 / 11;
-    background-color: #a30000;
-    position: relative;
-    transition: width 3.0s ease;
-  }
-  
-  .fullWidth {
-    grid-area: 3 / 1 / 11 / 11;
-  }
+.div2 {
+  grid-area: 3 / 1 / 11 / 3;
+  background-color: #ffffff00;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: width 0.5s ease;
+}
 
-  .contentTop {
-    height: 10%; /* 10% of the total height */
-    background-color: #ffffff; /* Example color */
-    display: flex; /* Use flex to align items */
-    justify-content: center; /* Center items horizontally */
-    align-items: center; /* Center items vertically */
-  }
-  
-  .navButton1, .navButton2 {
-    margin: 0 10px; /* Add margin for spacing */
-    padding: 10px 20px;
-    
-    color: white;
-    border: none;
-    border-radius: 5px;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-    height: 25px;
-  }
+.visible {
+  width: 100%;
+}
 
-  .navButton1{
-    background-color: rgb(48, 34, 182);
-  }
+.hidden {
+  width: 20px;
+  overflow: hidden;
+}
 
-  .navButton2{
-    background-color: rgb(36, 141, 10);
-  }
-  
-  .navButton2:hover {
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
 
-    padding-top: 15px;
-    background-color: rgb(65, 255, 18); /* Change color on hover */
-    height: 30px;
-  }
-  
-  
-  .contentBottom {
-    height: 90%; /* 90% of the total height */
-    background-color: white;
-    overflow-y: auto; /* Add scroll if content overflows */
-  }
+.button1, .button2, .button3, .button4 {
+  margin: 10px 0;
+  padding: 10px 20px;
+  background-color: rgb(48, 34, 182);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  height: 35px;
+  width: 170px;
+  font-size: 1.5rem;
+  text-decoration: none;
+}
 
- 
+.button1:hover, .button2:hover, .button3:hover, .button4:hover {
+  background-color: #3c6421;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: center; /* Center the buttons */
+  width: 100%;
+  padding: 10px 0;
+}
+
+.buttonProfile, .buttonLogout {
+  margin: 0 5px; /* Add a small margin for spacing */
+  padding: 0; /* Reset padding */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  height: 40px; /* Make it square */
+  width: 40px;  /* Make it square */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+}
+
+.buttonProfile {
+  background-color: rgb(48, 34, 182);
+}
+
+.buttonLogout {
+  background-color: #2d742d;
+}
+
+.buttonProfile:hover, .buttonLogout:hover {
+  background-color: #A90016;
+}
+
+.content {
+  grid-area: 3 / 3 / 11 / 11;
+  background-color: #a30000;
+  position: relative;
+  transition: width 3.0s ease;
+}
+
+.fullWidth {
+  grid-area: 3 / 1 / 11 / 11;
+}
+
+.contentTop {
+  height: 10%; /* 10% of the total height */
+  background-color: #ffffff; /* Example color */
+  display: flex; /* Use flex to align items */
+  justify-content: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+}
+
+.navButton1, .navButton2 {
+  margin: 0 10px; /* Add margin for spacing */
+  padding: 10px 20px;
+  
+  color: white;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  height: 25px;
+}
+
+.navButton1 {
+  background-color: rgb(48, 34, 182);
+}
+
+.navButton2 {
+  background-color: rgb(36, 141, 10);
+}
+
+.navButton2:hover {
+  padding-top: 15px;
+  background-color: rgb(65, 255, 18); /* Change color on hover */
+  height: 30px;
+}
+
+.contentBottom {
+  height: 90%; /* 90% of the total height */
+  background-color: white;
+  overflow-y: auto; /* Add scroll if content overflows */
+}
 
 .row1,
 .row2 {
-    height: 49%; /* Fixed height for each row */
-    display: flex; /* Use flexbox for content alignment */
-    justify-content: center; /* Center the content horizontally */
-    align-items: center; /* Center the content vertically */
-   
+  height: 49%; /* Fixed height for each row */
+  display: flex; /* Use flexbox for content alignment */
+  justify-content: center; /* Center the content horizontally */
+  align-items: center; /* Center the content vertically */
 }
 
 /* Specific styles for Row 1 and Row 2 */
 
-
 .row1 {
-    display: flex;
-    flex-direction: row; /* Keep row layout for the main row */
-  }
-  
-  .left {
-    display: flex;
-    flex-direction: column; /* Stack children vertically */
-    width: 200px; /* Set width for the left column */
-    margin-right: 20px; /* Space between left column and right content */
-  }
-
-.left,
-.right,
-.chart
-{
-    height: 100%;
-    display: flex; /* Use flexbox for content alignment */
-    justify-content:flex-start; /* Center the content horizontally */
-    align-items: center; /* Center the content vertically */
-   
+  display: flex;
+  flex-direction: row; /* Keep row layout for the main row */
 }
 
+.left {
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  width: 200px; /* Set width for the left column */
+  margin-right: 20px; /* Space between left column and right content */
+}
 
+.left, .right, .chart {
+  height: 100%;
+  display: flex; /* Use flexbox for content alignment */
+  justify-content: flex-start; /* Center the content horizontally */
+  align-items: center; /* Center the content vertically */
+}
 
-
-
-
-
-.left{
+.left {
   width: 30%;
 }
 
+.toggleButton {
+  position: absolute;
+  left: 0px;
+  height: 60px; /* Make it square */
+  width: 30px;  /* Make it square */
+  top: 5%;
+  transform: translateY(-50%);
+  background-color: #2774da79;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem; /* Adjust as needed */
+  transition: toggle 1.5s ease-in;
+}
 
+.toggleButton:hover {
+  background-color: #A90016;
+}
 
+.div4 {
+  grid-area: 1 / 3 / 3 / 11;
+  background-color: #D0021B;
+}
 
-  
-  .toggleButton {
-    position: absolute;
-    left: 0px;
-    height: 60px; /* Make it square */
-    width: 30px;  /* Make it square */
-    top: 5%;
-    transform: translateY(-50%);
-    background-color: #2774da79;
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5rem; /* Adjust as needed */
-    transition: toggle 1.5s ease-in;
-  }
-  
-  .toggleButton:hover {
-    background-color: #A90016;
-  }
-  
-  .div4 {
-    grid-area: 1 / 3 / 3 / 11;
-    background-color: #D0021B;
-  }
-  
-  .searchbar {
-    grid-area: 1 / 3 / 2 / 12; /* Keeping the grid position */
-    background-color: white;
-    display: flex;
-    justify-content: flex-start; /* Change to flex-start to avoid pushing items */
-    align-items: center; /* Center items vertically */
-    padding: 10px; /* Optional: adds padding */
-  }
-  
-  .userProfileImage {
-    width: 60px; /* Adjust size as needed */
-    height: 60px; /* Adjust size as needed */
-    border-radius: 50%; /* For a circular image */
-    margin-left: auto; /* Space from other items, if needed */
-  }
-  
-  .pagename {
-    grid-area: 2 / 3 / 2 / 12;
-    background-color: #ffffff;
-    font-size: 3rem;
-  }
-  /* General table styles */
+.searchbar {
+  grid-area: 1 / 3 / 2 / 12; /* Keeping the grid position */
+  background-color: white;
+  display: flex;
+  justify-content: flex-start; /* Change to flex-start to avoid pushing items */
+  align-items: center; /* Center items vertically */
+  padding: 10px; /* Optional: adds padding */
+}
+
+.userProfileImage {
+  width: 60px; /* Adjust size as needed */
+  height: 60px; /* Adjust size as needed */
+  border-radius: 50%; /* For a circular image */
+  margin-left: auto; /* Space from other items, if needed */
+}
+
+.pagename {
+  grid-area: 2 / 3 / 2 / 12;
+  background-color: #ffffff;
+  font-size: 3rem;
+}
+
+/* General table styles */
 .tableContainer {
-    flex: auto;
-    margin: 0px 10px;
-    font-size: 10px;
-    border: 1px solid #e0e0e0;
-    height: 90%;
-    border-radius: 8px;
-    overflow:auto;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex: auto;
+  margin: 0px 10px;
+  font-size: 10px;
+  border: 1px solid #e0e0e0;
+  height: 90%;
+  border-radius: 8px;
+  overflow: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .table {
-    
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
 }
 
 .table th, .table td {
-    padding: 5px;
-    text-align: left;
+  padding: 5px;
+  text-align: left;
 }
 
 .table th {
-    background-color: #f5f5f5;
-    border-bottom: 2px solid #e0e0e0;
-    color: #333;
+  background-color: #f5f5f5;
+  border-bottom: 2px solid #e0e0e0;
+  color: #333;
 }
 
 .table tr:nth-child(even) {
-    background-color: #f9f9f9;
+  background-color: #f9f9f9;
 }
 
 .table tr:hover {
-    background-color: #f1f1f1;
+  background-color: #f1f1f1;
 }
 
 .table td {
-    border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 /* Button styles in table */
 .table button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .table button:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
 }
 
 .dropdown {
-    width: 150px; /* Set the desired width */
-    border: 1px solid #ccc; /* Optional: Add border style */
-    background-color: #fff; /* Optional: Set background color */
-  }
-  
-  
-  .sales {
-    margin-bottom: 10px; /* Space between monthly and annual sales */
-  }
-  
-  .right {
-    flex-grow: 1; /* Allow the right section to take remaining space */
-  }
-/* Styles for the Receipt Modal */
+  width: 150px; /* Set the desired width */
+  border: 1px solid #ccc; /* Optional: Add border style */
+  background-color: #fff; /* Optional: Set background color */
+}
+
+.sales {
+  margin-bottom: 10px; /* Space between monthly and annual sales */
+}
+
+.right {
+  flex-grow: 1; /* Allow the right section to take remaining space */
+}
+
+.rightR {
+  width: 80%;
+}
+
+.leftR {
+  width: 20%;
+}/* Styles for Receipt Modal */
 .receiptModal {
-  position: fixed; /* Fixed positioning for modal */
-  top: 50%; /* Center modal vertically */
-  left: 50%; /* Center modal horizontally */
-  transform: translate(-50%, -50%); /* Centering */
-  background-color: white; /* White background for modal */
-  border-radius: 8px; /* Rounded corners */
-  padding: 20px; /* Padding inside the modal */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Shadow for depth */
-  z-index: 1000; /* Ensure modal is on top */
-  width: 90%; /* Responsive width */
-  max-width: 400px; /* Maximum width for a more realistic receipt */
-  overflow-y: auto; /* Scroll if content overflows */
-  font-family: 'Courier New', Courier, monospace; /* Monospace font for receipt feel */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  width: 90%;
+  max-width: 500px;
+  font-family: 'Courier New', Courier, monospace;
 }
 
-/* Receipt Header */
-.receiptModal h2 {
-  margin: 0; /* Remove default margin */
-  margin-bottom: 15px; /* Space below heading */
-  text-align: center; /* Center heading */
-  font-size: 1.5em; /* Larger heading */
-  border-bottom: 1px dashed #ccc; /* Dashed border for separation */
-  padding-bottom: 10px; /* Space below border */
+/* Table for Receipt */
+.receiptTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
 
-/* Item List Styles */
-.receiptModal .item {
-  display: flex; /* Use flexbox for item layout */
-  justify-content: space-between; /* Space between item name and price */
-  margin: 5px 0; /* Space between items */
+.receiptTable th, .receiptTable td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
-.receiptModal p {
-  margin: 5px 0; /* Space between paragraphs */
-  line-height: 1.5; /* Line height for readability */
+.receiptTable th {
+  background-color: #f2f2f2;
+  font-weight: bold;
 }
 
-/* Styles for Close Button in the Receipt Modal */
+.receiptTable td {
+  background-color: #ffffff;
+}
+
+.receiptTable tr:hover td {
+  background-color: #f1f1f1;
+}
+
+/* Footer styling */
+.footer {
+  text-align: right;
+  margin-top: 15px;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Close Button */
 .receiptModal button {
-  background-color: #e74c3c; /* Red background */
-  color: white; /* White text */
-  border: none; /* No border */
-  border-radius: 5px; /* Rounded corners */
-  padding: 10px 15px; /* Padding inside the button */
-  cursor: pointer; /* Pointer cursor */
-  transition: background-color 0.3s ease; /* Transition effect */
-  width: 10%; /* Full-width button */
-  margin-top: 15px; /* Space above button */
-  
+  margin-top: 20px;
+  width: 100%;
+  padding: 10px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 .receiptModal button:hover {
-  background-color: #c0392b; /* Darker red on hover */
-}
-
-/* Footer Styles */
-.receiptModal .footer {
-  border-top: 1px dashed #ccc; /* Dashed border at the top of footer */
-  margin-top: 10px; /* Space above footer */
-  padding-top: 10px; /* Space below footer */
-  text-align: right; /* Align total to the right */
-}
-
-.receiptModal .footer p {
-  font-weight: bold; /* Bold font for total */
-}
-
-/* Optional Styles for Receipt Logo or Store Name */
-.receiptModal .store-name {
-  text-align: center; /* Center store name */
-  font-size: 1.2em; /* Slightly larger font */
-  margin-bottom: 10px; /* Space below store name */
-}
-
-
-.rightR{
-  width:80%;
-}
-
-.leftR{
-  width: 20%;
+  background-color: #c0392b;
 }

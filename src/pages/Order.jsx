@@ -6,7 +6,7 @@ import { faBars, faClipboardList, faShoppingCart, faSave } from '@fortawesome/fr
 import { faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
-import Modal from './Modal';
+import Modal from './ModalEmp';
 import { ref, get, update, onValue, push } from 'firebase/database';
 
 const Order = () => {
@@ -272,8 +272,8 @@ const Order = () => {
               >
                 <option value="" disabled>Select Payment Type</option>
                 <option value="Cash">Cash</option>
-                <option value="Card">Card</option>
-                <option value="Online">Online</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Bank">Bank</option>
               </select>
             </div>
 

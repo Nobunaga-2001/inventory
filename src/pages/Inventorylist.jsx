@@ -86,97 +86,115 @@ const Inventorylist = () => {
 
   const handleUpdateQuantity = async (productId, variationCode) => {
     const uniqueKey = `${productId}-${variationCode}`;
-    const newQuantity = quantities[uniqueKey];
-
+    const newQuantity = quantities[uniqueKey]; // Quantity input by user
+  
+    // Ensure newQuantity is a valid number
     if (newQuantity !== undefined) {
       const quantity = Number(newQuantity);
+  
+      // Check if the new quantity is a valid number and non-negative
       if (isNaN(quantity) || quantity < 0) {
         alert('Please enter a valid quantity.');
         return;
       }
-
+  
+      // Fetch the current variations from Firebase
       const variationsRef = ref(db, `products/${productId}/variations`);
       const snapshot = await get(variationsRef);
       const variations = snapshot.val();
-
+  
       if (variations) {
+        // Find the variation we're trying to update
         const variationToUpdate = variations.find(
           (variation) => variation.productCode === variationCode
         );
         const variationIndex = variations.indexOf(variationToUpdate);
         const previousStock = variationToUpdate.quantity;
-
-        if (quantity !== previousStock) {
-          const changeAmount = quantity - previousStock;
-          const changeType = changeAmount > 0 ? 'Added' : 'Sold';
-
-          const updates = {
-            [`${variationIndex}/quantity`]: quantity,
-          };
-
-          setUpdating(true);
-
-          const user = auth.currentUser;
-          let currentUserData = { firstName: 'Unknown', uid: 'Unknown' };
-          if (user) {
-            const userRef = ref(db, `users/${user.uid}`);
-            const userSnapshot = await get(userRef);
-            if (userSnapshot.exists()) {
-              currentUserData = userSnapshot.val();
-            }
-          }
-
-          await update(variationsRef, updates);
-          alert('Quantity updated successfully!');
-
-          const stockChangeRef = ref(db, `stockChanges/${productId}`);
-          const changeLog = {
-            variationCode,
-            productName: variationToUpdate.productName,
-            currentStock: quantity,
-            previousStock,
-            quantityChanged: Math.abs(changeAmount),
-            changeDate: new Date().toISOString(),
-            changeType,
-            firstName: currentUserData.firstName || 'Unknown',
-          };
-
-          // Check for duplicates before pushing to Firebase and updating local state
-          const isDuplicate = stockChangeHistory.some(
-            (change) =>
-              change.variationCode === variationCode &&
-              change.currentStock === quantity &&
-              change.previousStock === previousStock &&
-              change.changeType === changeType &&
-              new Date(change.changeDate).toISOString() === changeLog.changeDate
-          );
-
-          if (!isDuplicate) {
-            await push(stockChangeRef, changeLog);
-            setStockChangeHistory((prev) => [...prev, changeLog]);
-          } else {
-            alert('This change has already been logged.');
-          }
-
-          // Fetch updated stock change history
-          const updatedStockChanges = await get(stockChangeRef);
-          const updatedStockChangeHistory = updatedStockChanges.val()
-            ? Object.entries(updatedStockChanges.val()).map(([key, value]) => ({
-                id: key,
-                ...value,
-              }))
-            : [];
-          setStockChangeHistory(updatedStockChangeHistory);
-
-          setEditMode((prev) => ({ ...prev, [uniqueKey]: false }));
-          setUpdating(false);
-        } else {
-          alert('No changes to update.');
+  
+        // Calculate the change amount
+        const changeAmount = quantity - previousStock;
+  
+        // **Void the operation if quantityChanged is 0**
+        if (changeAmount === 0) {
+          // No change in quantity detected
+          alert('No changes to update. The stock quantity is the same.');
+          setEditMode((prev) => ({ ...prev, [uniqueKey]: false })); // Exit edit mode
+          return; // Exit early without updating the database
         }
+  
+        // Proceed with updating since a change was detected
+        const changeType = changeAmount > 0 ? 'Added' : 'Sold';
+  
+        const updates = {
+          [`${variationIndex}/quantity`]: quantity, // Update the quantity
+        };
+  
+        setUpdating(true);
+  
+        // Get the current user details
+        const user = auth.currentUser;
+        let currentUserData = { firstName: 'Unknown', uid: 'Unknown' };
+        if (user) {
+          const userRef = ref(db, `users/${user.uid}`);
+          const userSnapshot = await get(userRef);
+          if (userSnapshot.exists()) {
+            currentUserData = userSnapshot.val();
+          }
+        }
+  
+        // Update the product variation quantity in Firebase
+        await update(variationsRef, updates);
+        alert('Quantity updated successfully!');
+  
+        // Log the stock change in Firebase
+        const stockChangeRef = ref(db, `stockChanges/${productId}`);
+        const changeLog = {
+          variationCode,
+          productName: variationToUpdate.productName,
+          currentStock: quantity,
+          previousStock,
+          quantityChanged: Math.abs(changeAmount),
+          changeDate: new Date().toISOString(),
+          changeType,
+          firstName: currentUserData.firstName || 'Unknown',
+        };
+  
+        // Check for duplicate change logs before pushing
+        const isDuplicate = stockChangeHistory.some(
+          (change) =>
+            change.variationCode === variationCode &&
+            change.currentStock === quantity &&
+            change.previousStock === previousStock &&
+            change.changeType === changeType &&
+            new Date(change.changeDate).toISOString() === changeLog.changeDate
+        );
+  
+        if (!isDuplicate) {
+          await push(stockChangeRef, changeLog);
+          setStockChangeHistory((prev) => [...prev, changeLog]);
+        } else {
+          alert('This change has already been logged.');
+        }
+  
+        // Fetch updated stock change history
+        const updatedStockChanges = await get(stockChangeRef);
+        const updatedStockChangeHistory = updatedStockChanges.val()
+          ? Object.entries(updatedStockChanges.val()).map(([key, value]) => ({
+              id: key,
+              ...value,
+            }))
+          : [];
+        setStockChangeHistory(updatedStockChangeHistory);
+  
+        // Exit edit mode for this product variation
+        setEditMode((prev) => ({ ...prev, [uniqueKey]: false }));
+        setUpdating(false);
       }
     }
   };
-
+  
+  
+  
   const toggleEditMode = (productId, variationCode, currentQuantity) => {
     const uniqueKey = `${productId}-${variationCode}`;
     // Ensure one editable row per variation
@@ -244,6 +262,7 @@ const Inventorylist = () => {
                 <th>Product Code</th>
                 <th>Dimension</th>
                 <th>Weight</th>
+                
                 <th>Current Stocks</th>
                 <th>Price</th>
                 <th>Actions</th>
@@ -282,6 +301,7 @@ const Inventorylist = () => {
                       <td>{variation.productCode}</td>
                       <td>{variation.productDimension}</td>
                       <td>{variation.productWeight}</td>
+                      
                       <td>
                         {editMode[uniqueKey] ? (
                           <input
